@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://getbootstrap.com/examples/starter-template/starter-template.css">
+    <script src="https://cdn.socket.io/socket.io-1.2.1.js"></script>
+    <script src="http://zeptojs.com/zepto.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.js"></script>
+    <script src="ui-bootstrap-tpls-0.12.0.js"></script>
+    <script>
+        var app = angular.module('remoting', ['ui.bootstrap']);
+
+        
+
+        app.controller('a', function ($scope) {
+            var socket = io('http://192.168.10.241:8083');
+
+            socket.on('message', function (data) {
+                console.log(data);
+            });
+            socket.on('screen', function (data) {
+                console.log(data);
+                $('#frame').html(data);
+            });
+
+            $scope.data = {};
+            socket.on('clients', function (data) {
+                console.log(data);
+                $scope.data.clients = data;
+            });
+            
+            $scope.sendMessage = function (title, message, type) {
+                socket.emit("showmessage", {title: title, message: message, type: type});
+            };
+
+            $scope.connect = function (clientid) {
+                socket.emit("remote", clientid);
+            }
+        });
+    </script>
+    <style type="text/css">
+        html, body, #frame {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0px;
+            margin: 0px;
+            border-style: none;
+        }
+    </style>
+</head>
+<body ng-app="remoting">
+<!--<div id="frame"></div>-->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Project name</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+        <!--/.nav-collapse -->
+    </div>
+</nav>
+
+<div class="container" ng-controller="a">
+
+    <div class="starter-template">
+        <h1>Bootstrap starter template</h1>
+        <p ng-repeat="client in data.clients">{{client.userName}}</p>
+        <div>
+            <input ng-model="title">
+            <input ng-model="message">
+            <input ng-model="type">
+            <button ng-click="sendMessage(title,message,type)">send message</button>
+            <input ng-model="clientid">
+            <button ng-click="connect(clientid)">connect</button>
+
+            <!--<button onclick="socket.emit('requestreload');">ddd</button>-->
+        </div>
+    </div>
+</div>
+<!-- /.container -->
+
+</body>
+</html>
