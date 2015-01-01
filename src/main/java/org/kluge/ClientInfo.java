@@ -1,6 +1,9 @@
 package org.kluge;
 
 import com.corundumstudio.socketio.SocketIOClient;
+import org.kluge.server.RemotingClient;
+
+import java.util.UUID;
 
 /**
  * Created by giko on 12/29/14.
@@ -8,9 +11,14 @@ import com.corundumstudio.socketio.SocketIOClient;
 public class ClientInfo {
     private String userName;
     private String url;
+    private UUID uuid;
 
-    public ClientInfo(SocketIOClient client) {
-        userName = client.get("id").toString();
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public ClientInfo(RemotingClient client) {
+        uuid = client.getUUID();
     }
 
     public String getUserName() {

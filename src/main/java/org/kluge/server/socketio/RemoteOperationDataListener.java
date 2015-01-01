@@ -1,8 +1,9 @@
-package org.kluge.server;
+package org.kluge.server.socketio;
 
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DataListener;
+import org.kluge.server.RemoteOperation;
 
 /**
  * Created by giko on 12/30/14.

@@ -3,7 +3,7 @@ package org.kluge;
 import com.corundumstudio.socketio.*;
 import com.corundumstudio.socketio.listener.DefaultExceptionListener;
 import org.kluge.server.RemotingServer;
-import org.kluge.server.SocketIORemotingServer;
+import org.kluge.server.socketio.SocketIORemotingServer;
 
 /**
  * Created by giko on 12/25/14.
