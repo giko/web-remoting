@@ -1,5 +1,6 @@
-package org.kluge.server;
+package org.kluge.remoting.server;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -10,6 +11,8 @@ public interface RemotingClient<T> {
     void stopSharing();
     void sendMessage(TextMessage message);
     void refresh();
+    void disconnect();
     UUID getUUID();
+    Optional<UserInfo> getInfo();
     SharingSession<T> getSession();
 }

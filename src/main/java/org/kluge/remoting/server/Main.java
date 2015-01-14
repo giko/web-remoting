@@ -1,9 +1,9 @@
-package org.kluge;
+package org.kluge.remoting.server;
 
 import com.corundumstudio.socketio.*;
 import com.corundumstudio.socketio.listener.DefaultExceptionListener;
-import org.kluge.server.RemotingServer;
-import org.kluge.server.socketio.SocketIORemotingServer;
+import org.kluge.remoting.server.RemotingServer;
+import org.kluge.remoting.server.socketio.SocketIORemotingServer;
 
 /**
  * Created by giko on 12/25/14.
@@ -21,8 +21,7 @@ public class Main {
 
         final SocketIOServer server = new SocketIOServer(config);
 
-        RemotingServer remotingServer = new SocketIORemotingServer(server);
-
+        RemotingServer<?> remotingServer = new SocketIORemotingServer(server);
         try {
             server.startAsync().sync();
         } catch (InterruptedException e) {

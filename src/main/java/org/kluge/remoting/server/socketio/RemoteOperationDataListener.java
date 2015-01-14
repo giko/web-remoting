@@ -1,9 +1,9 @@
-package org.kluge.server.socketio;
+package org.kluge.remoting.server.socketio;
 
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DataListener;
-import org.kluge.server.RemoteOperation;
+import org.kluge.remoting.server.RemoteOperation;
 
 /**
  * Created by giko on 12/30/14.
@@ -18,6 +18,6 @@ public class RemoteOperationDataListener<T> implements DataListener<T> {
     }
 
     @Override public void onData(SocketIOClient client, T data, AckRequest ackSender) throws Exception {
-        operation.execute(server.activeConnections.get(client), data);
+        operation.execute(server.activeConnections.get(server.supervisors.get(client)), data);
     }
 }

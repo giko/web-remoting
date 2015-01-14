@@ -1,4 +1,4 @@
-package org.kluge.server;
+package org.kluge.remoting.server;
 
 import java.util.Set;
 

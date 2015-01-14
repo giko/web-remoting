@@ -1,4 +1,4 @@
-package org.kluge.server;
+package org.kluge.remoting.server;
 
 import java.util.Set;
 
@@ -9,5 +9,6 @@ public interface SharingSession<T> {
     void broadcast(T data);
     RemotingClient getClient();
     void addSupervisor(RemotingSupervisor<T> supervisor);
+    void removeSupervisor(RemotingSupervisor<T> supervisor);
     Set<RemotingSupervisor<T>> getSupervisors();
 }
