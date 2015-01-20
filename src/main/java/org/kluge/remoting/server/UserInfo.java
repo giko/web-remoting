@@ -50,13 +50,9 @@ public class UserInfo {
 
         UserInfo userInfo = (UserInfo) o;
 
-        if (!location.equals(userInfo.location))
+        if (location != null ? !location.equals(userInfo.location) : userInfo.location != null)
             return false;
-        if (!name.equals(userInfo.name))
-            return false;
-        if (x != null ? !x.equals(userInfo.x) : userInfo.x != null)
-            return false;
-        if (y != null ? !y.equals(userInfo.y) : userInfo.y != null)
+        if (name != null ? !name.equals(userInfo.name) : userInfo.name != null)
             return false;
 
         return true;
@@ -64,10 +60,8 @@ public class UserInfo {
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + location.hashCode();
-        result = 31 * result + (x != null ? x.hashCode() : 0);
-        result = 31 * result + (y != null ? y.hashCode() : 0);
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (location != null ? location.hashCode() : 0);
         return result;
     }
 }

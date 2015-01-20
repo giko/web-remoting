@@ -1,8 +1,5 @@
 package org.kluge.remoting.server;
 
-import org.kluge.remoting.server.RemotingClient;
-import org.kluge.remoting.server.UserInfo;
-
 import java.util.UUID;
 
 /**
@@ -17,10 +14,6 @@ public class ClientInfo {
         info = client.getInfo().get();
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
-
     public UserInfo getInfo() {
         return info;
     }
@@ -31,5 +24,9 @@ public class ClientInfo {
 
     public UUID getUuid() {
         return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 }

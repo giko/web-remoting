@@ -10,31 +10,33 @@ import java.util.stream.Collectors;
 /**
  * Created by giko on 12/30/14.
  */
-public class SocketIORemotingServer implements RemotingServer<String> {
-    protected Map<RemotingSupervisor<String>, RemotingClient> activeConnections = new HashMap<>();
-    protected Map<SocketIOClient, RemotingSupervisor<String>> supervisors = new HashMap<>();
-    protected Map<SocketIOClient, UpdatableRemotingClient<String>> clients = new HashMap<>();
+public class SocketIORemotingServer<T> implements RemotingServer<T> {
+    protected Map<SocketIOClient, RemotingSupervisor<T>> supervisors = new HashMap<>();
+    protected Map<SocketIOClient, UpdatableRemotingClient<T>> clients = new HashMap<>();
+    protected SharingSessionFactory<T> sessionFactory;
 
     protected SocketIOServer socketIOServer;
 
-    public SocketIORemotingServer(SocketIOServer socketIOServer) {
+    public SocketIORemotingServer(SocketIOServer socketIOServer, Class<T> dataClass,
+                                  SharingSessionFactory<T> sessionFactory) {
+        this.sessionFactory = sessionFactory;
         this.socketIOServer = socketIOServer;
 
         socketIOServer.addConnectListener(client -> client.sendEvent("clients", getClientInfos()));
 
         socketIOServer.addEventListener("supervisor", LoginRequest.class, (client1, data2, ackSender1) -> {
-            supervisors.put(client1, new SocketIORemotingSupervisor(client1));
+            supervisors.put(client1, new SocketIORemotingSupervisor<>(client1));
+            client1.sendEvent("clients", getClientInfos());
         });
         socketIOServer.addEventListener("client", LoginRequest.class, (client1, data2, ackSender1) -> {
-            clients.put(client1, new SocketIORemotingClient(client1));
+            clients.put(client1, new SocketIORemotingClient<>(client1, sessionFactory));
         });
         socketIOServer.addEventListener("userinfo", UserInfo.class, (client, data, ackSender) -> {
             if (!clients.get(client).getInfo().equals(Optional.of(data))) {
                 clients.get(client).setInfo(data);
-                for (SocketIOClient supervisor : supervisors.keySet()) {
-                    supervisor.sendEvent("clients", getClientInfos());
-                }
+                sendClientInfos();
             }
+            clients.get(client).setInfo(data);
         });
 
         socketIOServer.addDisconnectListener(client -> {
@@ -49,19 +51,25 @@ public class SocketIORemotingServer implements RemotingServer<String> {
                 RemotingClient<?> remotingClient = clients.get(client);
                 remotingClient.getSession().getSupervisors().forEach(RemotingSupervisor::disconnectFromClient);
                 clients.remove(client);
-                for (SocketIOClient supervisor : supervisors.keySet()) {
-                    supervisor.sendEvent("clients", getClientInfos());
-                }
+                sendClientInfos();
             }
         });
 
-        socketIOServer.addEventListener("supervise", String.class, (client, data, ackSender) -> {
-            RemotingSupervisor<String> supervisor = supervisors.get(client);
-            RemotingClient<String> remotingClient = clients.get(socketIOServer.getClient(UUID.fromString(data)));
+        socketIOServer.addEventListener("super", String.class, (client, data, ackSender) -> {
+            RemotingSupervisor<T> supervisor = supervisors.get(client);
+            RemotingClient<T> remotingClient = clients.get(socketIOServer.getClient(UUID.fromString(data)));
 
             supervisor.connect(remotingClient);
 
-            activeConnections.put(supervisor, remotingClient);
+            supervisor.supervise();
+        });
+
+        socketIOServer.addEventListener("supervise", String.class, (client, data, ackSender) -> {
+            RemotingSupervisor<T> supervisor = supervisors.get(client);
+            RemotingClient<T> remotingClient = clients.get(socketIOServer.getClient(UUID.fromString(data)));
+
+            supervisor.connect(remotingClient);
+
             supervisor.supervise();
         });
         socketIOServer.addEventListener("unsupervise", Void.class,
@@ -71,37 +79,52 @@ public class SocketIORemotingServer implements RemotingServer<String> {
                 createRemoteOperationListener(RemotingClient::sendMessage));
 
         socketIOServer.addEventListener("requestreload", Void.class,
-                createRemoteOperationListener((client, data1) -> client.refresh()));
+                createRemoteOperationListener(RemotingClient::refresh));
 
-        socketIOServer.addEventListener("screendata", String.class,
+        socketIOServer.addEventListener("countdown", Long.class, createRemoteOperationListener(
+                RemotingClient::displayCountDown));
+
+        socketIOServer.addEventListener("screendata", dataClass,
                 (client, data, ackSender) -> clients.get(client).getSession().broadcast(data));
+    }
+
+    private void sendClientInfos() {
+        for (SocketIOClient supervisor : supervisors.keySet()) {
+            supervisor.sendEvent("clients", getClientInfos());
+        }
     }
 
     private List<ClientInfo> getClientInfos() {
         return clients.values().stream().map(ClientInfo::new).collect(Collectors.toList());
     }
 
-    <T> RemoteOperationDataListener<T> createRemoteOperationListener(RemoteOperation<T> operation) {
+    <K> RemoteOperationDataListener<T, K> createRemoteOperationListener(RemoteOperation<T, K> operation) {
         return new RemoteOperationDataListener<>(this, operation);
     }
 
-    @Override public Set<RemotingClient> getRemotingClients() {
+    @Override
+    public Set<RemotingClient<T>> getRemotingClients() {
         return new LinkedHashSet<>(clients.values());
     }
 
-    @Override public Set<RemotingSupervisor<String>> getSupervisors() {
+    @Override
+    public Set<RemotingSupervisor<T>> getSupervisors() {
         return new LinkedHashSet<>(supervisors.values());
     }
 
-    @Override public Set<SharingSession<String>> getSessions() {
+    @Override
+    public Set<SharingSession<T>> getSessions() {
         throw new UnsupportedOperationException();
     }
 
-    @Override public void addToSession(RemotingSupervisor<String> supervisor, RemotingClient client) {
-        client.getSession().addSupervisor(supervisor);
+    //Use case?
+    @Override
+    public void addRemotingClient(RemotingClient<T> client) {
+        throw new UnsupportedOperationException();
     }
 
-    @Override public void addRemotingClient(RemotingClient client) {
-
+    @Override
+    public void addSuprevisor(RemotingSupervisor<T> supervisor) {
+        throw new UnsupportedOperationException();
     }
 }

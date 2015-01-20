@@ -6,10 +6,12 @@
     <script src="http://zeptojs.com/zepto.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-route.js"></script>
+    <script src="ui-grid-unstable.js"></script>
+    <link rel="styleSheet" href="ui-grid-unstable.css">
     <script src="ui-bootstrap-tpls-0.12.0.js"></script>
     <script src="socket.js"></script>
     <script>
-        var app = angular.module('remoting', ['ngRoute', 'btford.socket-io', 'ui.bootstrap']);
+        var app = angular.module('remoting', ['ngRoute', 'btford.socket-io', 'ui.bootstrap', 'ui.grid']);
 
         app.factory('socket', function (socketFactory) {
             return socketFactory({
@@ -49,6 +51,7 @@
 
             socket.on('connect', function () {
                 socket.emit('supervisor');
+//                $location.path("/");
             });
         });
 
@@ -59,21 +62,45 @@
                 doc.open();
                 doc.write(data);
                 doc.close();
-                $(doc).find('[scrollTop]').each(function () {
+                $(doc).find('[scrollTop],[scrollLeft]').each(function () {
                     $(this).scrollTop($(this).attr("scrollTop"));
+                    $(this).scrollLeft($(this).attr("scrollLeft"));
                 });
+                $(doc).find('body').width($(doc).find('body').attr('absWidth'));
+                $(doc).find('body').height($(doc).find('body').attr('absHeight'));
+                var xScale = $('body').width() / $(doc).find('body').width();
+                var yScale = $('body').height() / $(doc).find('body').height();
+                $('#frame').width($(doc).find('body').width());
+                $('#frame').height($(doc).find('body').height());
+//                $('#frame').css('transform', 'scale('+xScale+', '+yScale+')');
+//                $('#frame').css('transform-origin', 'top left');
             });
-            socket.on("disconnected", function(){
+            socket.on("disconnected", function () {
                 $location.path("/");
             });
             $scope.sendMessage = function (title, message, type) {
                 socket.emit("showmessage", {title: title, message: message, type: type});
             };
-            $scope.disconnect = function(){
+            $scope.disconnect = function () {
                 socket.emit("unsupervise");
+            };
+            
+            $scope.countdown = function(time) {
+                socket.emit("countdown", time);
             }
         });
         app.controller('homeCtrl', function ($scope, $routeParams, $location, socket) {
+            $scope.gridOptions = {
+                enableFiltering: true,
+                columnDefs: [
+                    // default
+                    { field: 'info.name' },
+                    // pre-populated search field
+                    { field: 'info.location'}
+                ]
+            };
+            socket.emit('supervisor');
+
             $scope.data = {};
             socket.on('clients', function (data) {
                 $scope.data.clients = data;

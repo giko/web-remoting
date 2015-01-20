@@ -1,8 +1,9 @@
-<input ng-model="title">
+<div style="height: 4%"><input ng-model="title">
 <input ng-model="text">
 <input ng-model="type">
     <button ng-click="sendMessage(title,text,type)">send</button>
     <button ng-click="disconnect()">disconnect</button>
 </div>
-<iframe id="frame" style="width: 100%; height: 90%; overflow: scroll"></iframe>
-<img style="position: absolute" src="http://www.clker.com/cliparts/b/8/d/3/11949837831120231634mouse_pointer_wolfram_es_01.svg.hi.png" width="15px" height="15px" id="pointer">
+<input ng-model="time">
+<button ng-click="countdown(time)">count</button>
+<iframe id="frame" style="width: 100%; height: 95%;" scrolling="auto"></iframe>
