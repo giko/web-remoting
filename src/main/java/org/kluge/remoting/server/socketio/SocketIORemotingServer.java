@@ -41,7 +41,7 @@ public class SocketIORemotingServer<T> implements RemotingServer<T> {
 
         socketIOServer.addDisconnectListener(client -> {
             if (supervisors.get(client) != null) {
-                RemotingSupervisor supervisor = supervisors.get(client);
+                RemotingSupervisor<? extends T> supervisor = supervisors.get(client);
                 supervisor.unSupervise();
                 supervisors.remove(client);
 

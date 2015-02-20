@@ -6,7 +6,7 @@ import org.jsoup.nodes.Document;
 /**
  * Created by giko on 1/16/15.
  */
-public class DomSharingSession extends StringSharingSession {
+public class DomSharingSession extends AbstractSharingSession<String> {
     public DomSharingSession(RemotingClient<String> client) {
         super(client);
     }

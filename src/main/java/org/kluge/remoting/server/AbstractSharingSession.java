@@ -6,39 +6,39 @@ import java.util.Set;
 /**
  * Created by giko on 1/1/15.
  */
-public abstract class StringSharingSession implements SharingSession<String> {
-    RemotingClient<String> client;
-    Set<RemotingSupervisor<String>> supervisors = new HashSet<>();
+public abstract class AbstractSharingSession<T> implements SharingSession<T> {
+    RemotingClient<T> client;
+    Set<RemotingSupervisor<T>> supervisors = new HashSet<>();
 
-    public StringSharingSession(RemotingClient<String> client) {
+    public AbstractSharingSession(RemotingClient<T> client) {
         this.client = client;
     }
 
     @Override
-    public void broadcast(String data) {
+    public void broadcast(T data) {
         supervisors.forEach(supervisor -> supervisor.send(transform(data)));
     }
 
-    protected abstract String transform(String data);
+    protected abstract T transform(T data);
 
     @Override
-    public RemotingClient getClient() {
+    public RemotingClient<? extends T> getClient() {
         return client;
     }
 
     @Override
-    public Set<RemotingSupervisor<String>> getSupervisors() {
+    public Set<RemotingSupervisor<T>> getSupervisors() {
         return new HashSet<>(supervisors);
     }
 
     @Override
-    public void addSupervisor(RemotingSupervisor<String> supervisor) {
+    public void addSupervisor(RemotingSupervisor<T> supervisor) {
         supervisors.add(supervisor);
         updateBroadcastState();
     }
 
     @Override
-    public void removeSupervisor(RemotingSupervisor<String> supervisor) {
+    public void removeSupervisor(RemotingSupervisor<T> supervisor) {
         supervisors.remove(supervisor);
         updateBroadcastState();
     }
