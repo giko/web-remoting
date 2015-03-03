@@ -1,0 +1,7 @@
+apache:
+  image: nginx
+  ports:
+    - 8083:80
+  volumes:
+    - /home/giko/work/remoting/src/main/webapp:/usr/share/nginx/html
+    - /home/giko/work/remoting/clientlib:/usr/share/nginx/html/static

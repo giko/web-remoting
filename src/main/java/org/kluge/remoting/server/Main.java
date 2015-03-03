@@ -13,8 +13,8 @@ public class Main {
 
     public static void main(String[] args) {
         Configuration config = new Configuration();
-        config.setHostname("192.168.10.241");
-        config.setPort(8083);
+        config.setHostname("0.0.0.0");
+        config.setPort(8082);
         config.setMaxHttpContentLength(Integer.MAX_VALUE);
         config.setMaxFramePayloadLength(Integer.MAX_VALUE);
         config.getSocketConfig().setReuseAddress(true);

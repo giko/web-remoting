@@ -14,6 +14,9 @@ public class TextMessage {
         this.type = type;
     }
 
+    public TextMessage() {
+    }
+
     public String getMessage() {
         return message;
     }

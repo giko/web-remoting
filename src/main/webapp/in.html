@@ -1,7 +1,8 @@
 <div class="container" ng-controller="mainCtrl">
-    <div ng-repeat="client in data.clients" ng-dblclick="connect(client.uuid)">
+    <div ng-repeat="client in data.clients | orderBy:info.active" ng-dblclick="connect(client.uuid)">
         <span>{{client.info.name}}</span>
         <span>at {{client.info.location}}</span>
+        <span>{{client.info.active}}</span>
         <span><button ng-click="connect(client.uuid)">connect</button></span>
     </div>
 </div>

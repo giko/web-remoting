@@ -16,11 +16,12 @@ public class DomSharingSession extends AbstractSharingSession<String> {
         Document document = Jsoup.parse(data);
         document.outputSettings().prettyPrint(false);
         client.getInfo().ifPresent(userInfo -> {
+                    document.select("head").append("<base href=\""+userInfo.getLocation()+"/\" target=\"_blank\">");
                     document.select("body")
                             .append("<img style=\"z-index:2000;position: absolute; left:" + userInfo.getX() +
                                     "px;top:" +
                                     userInfo.getY() +
-                                    "px;\" src=\"http://www.clker.com/cliparts/b/8/d/3/11949837831120231634mouse_pointer_wolfram_es_01.svg.hi.png\" width=\"11px\" id=\"pointer\">");
+                                    "px;\" src=\"https://rpc.ventra.ru/static/cursor.png\" width=\"11px\" id=\"pointer\">");
                     document.select("[href], [src]").forEach(element -> {
                         if (!element.attr("href").startsWith("http")) {
                             element.attr("href", userInfo.getLocation() + "/" + element.attr("href"));

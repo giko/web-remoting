@@ -1,5 +1,7 @@
 package org.kluge.remoting.server;
 
+import java.util.Objects;
+
 /**
  * Created by giko on 1/12/15.
  */
@@ -8,6 +10,15 @@ public class UserInfo {
     private String location;
     private Integer x;
     private Integer y;
+    private Boolean isActive;
+
+    public Boolean isActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
 
     public Integer getX() {
         return x;
@@ -43,25 +54,16 @@ public class UserInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         UserInfo userInfo = (UserInfo) o;
-
-        if (location != null ? !location.equals(userInfo.location) : userInfo.location != null)
-            return false;
-        if (name != null ? !name.equals(userInfo.name) : userInfo.name != null)
-            return false;
-
-        return true;
+        return Objects.equals(name, userInfo.name) &&
+                Objects.equals(location, userInfo.location) &&
+                Objects.equals(isActive, userInfo.isActive);
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (location != null ? location.hashCode() : 0);
-        return result;
+        return Objects.hash(name, location, isActive);
     }
 }
