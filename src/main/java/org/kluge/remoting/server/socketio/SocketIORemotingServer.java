@@ -22,19 +22,22 @@ public class SocketIORemotingServer<T> implements RemotingServer<T> {
         this.sessionFactory = sessionFactory;
         this.socketIOServer = socketIOServer;
 
-        socketIOServer.addConnectListener(client -> client.sendEvent("clients", getClientInfos()));
-
         socketIOServer.addEventListener("supervisor", LoginRequest.class, (client1, data2, ackSender1) -> {
-            supervisors.put(client1, new SocketIORemotingSupervisor<>(client1));
-            client1.sendEvent("clients", getClientInfos());
-        });
+                    supervisors.put(client1, new SocketIORemotingSupervisor<>(client1));
+                    clients.values().stream().map(ClientInfo::new).forEach(clientInfo -> client1.sendEvent("client_updated", clientInfo));
+                }
+        );
+
         socketIOServer.addEventListener("client", LoginRequest.class, (client1, data2, ackSender1) -> {
-            clients.put(client1, new SocketIORemotingClient<>(client1, sessionFactory));
-        });
+                    clients.put(client1, new SocketIORemotingClient<>(client1, sessionFactory));
+                    notifyUpdated(clients.get(client1));
+                }
+        );
+
         socketIOServer.addEventListener("userinfo", UserInfo.class, (client, data, ackSender) -> {
             if (!clients.get(client).getInfo().equals(Optional.of(data))) {
                 clients.get(client).setInfo(data);
-                sendClientInfos();
+                notifyUpdated(clients.get(client));
             }
             clients.get(client).setInfo(data);
         });
@@ -51,7 +54,7 @@ public class SocketIORemotingServer<T> implements RemotingServer<T> {
                 RemotingClient<?> remotingClient = clients.get(client);
                 remotingClient.getSession().getSupervisors().forEach(RemotingSupervisor::disconnectFromClient);
                 clients.remove(client);
-                sendClientInfos();
+                notifyDisconnected(remotingClient);
             }
         });
 
@@ -88,13 +91,21 @@ public class SocketIORemotingServer<T> implements RemotingServer<T> {
                 (client, data, ackSender) -> clients.get(client).getSession().broadcast(data));
     }
 
-    private void sendClientInfos() {
+    private void broadcastToSupervisors(String event, Object... objects) {
         for (SocketIOClient supervisor : supervisors.keySet()) {
-            supervisor.sendEvent("clients", getClientInfos());
+            supervisor.sendEvent(event, objects);
         }
     }
 
-    private List<ClientInfo> getClientInfos() {
+    private void notifyUpdated(UpdatableRemotingClient<T> client) {
+        broadcastToSupervisors("client_updated", new ClientInfo(client));
+    }
+
+    private void notifyDisconnected(RemotingClient<?> client) {
+        broadcastToSupervisors("client_disconnected", client.getUUID().toString());
+    }
+
+    private List<ClientInfo> getClientInfos2() {
         return clients.values().stream().map(ClientInfo::new).collect(Collectors.toList());
     }
 

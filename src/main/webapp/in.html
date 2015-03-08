@@ -1,8 +1,23 @@
 <div class="container" ng-controller="mainCtrl">
-    <div ng-repeat="client in data.clients | orderBy:info.active" ng-dblclick="connect(client.uuid)">
-        <span>{{client.info.name}}</span>
-        <span>at {{client.info.location}}</span>
-        <span>{{client.info.active}}</span>
-        <span><button ng-click="connect(client.uuid)">connect</button></span>
-    </div>
+    <table>
+        <thead>
+        <tr>
+            <td></td>
+            <td>Name</td>
+            <td>Location</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td></td>
+            <td><input ng-model="search.client.info.name"></td>
+            <td><input ng-model="search.client.info.location"></td>
+        </tr>
+        <tr ng-dblclick="connect(client.uuid)" ng-repeat="(key, client) in data.clients | filter:search:false">
+            <td><div class="circle" ng-class="{circleActive: client.info.active, circleAway: !client.info.active}"></div></td>
+            <td>{{client.info.name}}</td>
+            <td>{{client.info.location}}</td>
+        </tr>
+        </tbody>
+    </table>
 </div>

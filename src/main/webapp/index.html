@@ -6,6 +6,28 @@
     <script src="zepto.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-route.js"></script>
+    <style>
+        td {
+            margin: 0;
+            padding: 0;
+            border-right: dashed 1px;
+        }
+        .circle {
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 20px;
+            width: 10px;
+            height: 10px;
+        }
+
+        .circleActive {
+            background: green;
+        }
+
+        .circleAway {
+            background: goldenrod;
+        }
+    </style>
     <script src="socket.js"></script>
     <script>
         var app = angular.module('remoting', ['ngRoute', 'btford.socket-io']);
@@ -81,26 +103,22 @@
             $scope.disconnect = function () {
                 socket.emit("unsupervise");
             };
-            
-            $scope.countdown = function(time) {
+
+            $scope.countdown = function (time) {
                 socket.emit("countdown", time);
             }
         });
         app.controller('homeCtrl', function ($scope, $routeParams, $location, socket) {
-            $scope.gridOptions = {
-                enableFiltering: true,
-                columnDefs: [
-                    // default
-                    { field: 'info.name' },
-                    // pre-populated search field
-                    { field: 'info.location'}
-                ]
-            };
             socket.emit('supervisor');
 
-            $scope.data = {};
-            socket.on('clients', function (data) {
-                $scope.data.clients = data;
+            $scope.data = {clients:{}};
+
+            socket.on('client_updated', function (data) {
+                $scope.data.clients[data.uuid] = data;
+            });
+
+            socket.on('client_disconnected', function (data) {
+                delete $scope.data.clients[data];
             });
 
             $scope.connect = function (clientid) {
