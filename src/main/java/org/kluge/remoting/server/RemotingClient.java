@@ -12,9 +12,7 @@ public interface RemotingClient<T> extends BatchableRemotingClient {
     void stopSharing();
 
     void disconnect();
-
-    UUID getUUID();
-
+    
     Optional<UserInfo> getInfo();
 
     SharingSession<T> getSession();

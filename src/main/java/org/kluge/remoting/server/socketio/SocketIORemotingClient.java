@@ -13,8 +13,8 @@ import java.util.UUID;
  * Created by giko on 12/30/14.
  */
 public class SocketIORemotingClient<T> implements UpdatableRemotingClient<T> {
-    private SocketIOClient socketIOClient;
-    private SharingSession<T> session;
+    private final SocketIOClient socketIOClient;
+    private final SharingSession<T> session;
     private Optional<UserInfo> info = Optional.empty();
 
     public SocketIORemotingClient(SocketIOClient socketIOClient, SharingSessionFactory<T> sessionFactory) {
@@ -45,8 +45,18 @@ public class SocketIORemotingClient<T> implements UpdatableRemotingClient<T> {
     }
 
     @Override
+    public void ping() {
+        socketIOClient.sendEvent("pingDom", String.valueOf(System.currentTimeMillis()));
+    }
+
+    @Override
+    public void ping(Void t) {
+        ping();
+    }
+
+    @Override
     public void refresh() {
-        socketIOClient.sendEvent("refresh");
+        socketIOClient.sendEvent("reload");
     }
 
     @Override
@@ -76,6 +86,7 @@ public class SocketIORemotingClient<T> implements UpdatableRemotingClient<T> {
 
     @Override
     public void setInfo(UserInfo info) {
+        this.info.ifPresent(userInfo -> info.setPing(userInfo.getPing()));
         this.info = Optional.of(info);
     }
 

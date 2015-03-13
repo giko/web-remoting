@@ -7,8 +7,8 @@ import java.util.Set;
  * Created by giko on 1/1/15.
  */
 public abstract class AbstractSharingSession<T> implements SharingSession<T> {
-    RemotingClient<T> client;
-    Set<RemotingSupervisor<T>> supervisors = new HashSet<>();
+    final RemotingClient<T> client;
+    final Set<RemotingSupervisor<T>> supervisors = new HashSet<>();
 
     public AbstractSharingSession(RemotingClient<T> client) {
         this.client = client;

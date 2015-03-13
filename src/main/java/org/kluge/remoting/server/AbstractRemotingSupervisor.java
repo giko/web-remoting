@@ -8,8 +8,8 @@ import java.util.Set;
  * Created by giko on 1/16/15.
  */
 public abstract class AbstractRemotingSupervisor<T> implements RemotingSupervisor<T> {
+    private final Set<BatchableRemotingClient> clients = new HashSet<>();
     private Optional<RemotingClient<T>> activeClient = Optional.empty();
-    private Set<BatchableRemotingClient> clients = new HashSet<>();
     private Boolean isSilent = true;
 
     public void connect(RemotingClient<T> client) {
@@ -17,6 +17,10 @@ public abstract class AbstractRemotingSupervisor<T> implements RemotingSuperviso
         if (!isSilent) {
             client.sendMessage(new TextMessage("Administrator connected", "Connected", "info"));
         }
+    }
+    
+    public void connect(BatchableRemotingClient client) {
+        clients.add(client);
     }
 
     public void disconnectFromClient(BatchableRemotingClient client) {
@@ -41,10 +45,6 @@ public abstract class AbstractRemotingSupervisor<T> implements RemotingSuperviso
 
     public Optional<RemotingClient<T>> getClient() {
         return activeClient;
-    }
-
-    public void supervise() {
-        getClient().ifPresent(client -> client.getSession().addSupervisor(this));
     }
 
     public void unSupervise() {

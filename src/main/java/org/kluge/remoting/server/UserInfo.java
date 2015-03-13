@@ -11,6 +11,7 @@ public class UserInfo {
     private Integer x;
     private Integer y;
     private Boolean isActive;
+    private Long ping;
 
     public Boolean isActive() {
         return isActive;
@@ -50,6 +51,14 @@ public class UserInfo {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Long getPing() {
+        return ping;
+    }
+
+    public void setPing(Long ping) {
+        this.ping = ping;
     }
 
     @Override

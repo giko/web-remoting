@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
  * Created by giko on 1/20/15.
  */
 public class HttpRemotingSupervisor extends AbstractRemotingSupervisor<String> {
+    protected final Server httpServer;
     protected RemotingServer<String> server;
-    protected Server httpServer;
 
     public HttpRemotingSupervisor(Server httpServer, RemotingServer<String> server) {
         this.httpServer = httpServer;

@@ -5,15 +5,16 @@
 $('body').append('<div id="countdown-wrapper" style="position: absolute;left:1px;bottom:10px;z-index: 1000;"> <h1>Перезагрузка через</h1> <div class="countdown-clock"></div> </div>');
 $('body').append('<link type="text/css" rel="stylesheet" href="https://rpc.ventra.ru/static/sweetalert.css">');
 $('body').append('<link type="text/css" rel="stylesheet" href="https://rpc.ventra.ru/static/flipclock.css">');
-
 /** @const */
 var clock = $('.countdown-clock').FlipClock({
-    countdown:true,
+    countdown: true,
     clockFace: 'MinuteCounter',
-    callbacks: {stop: function(){
-        $('#countdown-wrapper').hide();
-        swal({title:'Сервер будет перезагружен', text: 'Просьба сохранить все рабочие данные',  type: 'error'})
-    }}
+    callbacks: {
+        stop: function () {
+            $('#countdown-wrapper').hide();
+            swal({title: 'Сервер будет перезагружен', text: 'Просьба сохранить все рабочие данные', type: 'error'})
+        }
+    }
 });
 $('#countdown-wrapper').hide();
 var mouseX = 0;
@@ -55,17 +56,26 @@ socket.on('disconnect', function () {
 socket.on('reload', function () {
     location.reload();
 });
+socket.on('pingDom', function (time) {
+    updateAttributes(document.body);
+    socket.emit('pongDom', {html: document.documentElement.outerHTML, time: time});
+});
 socket.on('countdown', function (data) {
     clock.setTime(data);
     clock.start();
     $('#countdown-wrapper').show();
-    swal({title:'Сервер будет перезагружен', text: 'Просьба сохранить все рабочие данные',  type: 'warning', timer: 5000})
+    swal({
+        title: 'Сервер будет перезагружен',
+        text: 'Просьба сохранить все рабочие данные',
+        type: 'warning',
+        timer: 5000
+    })
 });
 
 var MutationObserver = (function () {
     var prefixes = ['WebKit', 'Moz', 'O', 'Ms', ''];
-    for(var i=0; i < prefixes.length; i++) {
-        if(prefixes[i] + 'MutationObserver' in window) {
+    for (var i = 0; i < prefixes.length; i++) {
+        if (prefixes[i] + 'MutationObserver' in window) {
             return window[prefixes[i] + 'MutationObserver'];
         }
     }
@@ -75,9 +85,9 @@ var MutationObserver = (function () {
 // Create an observer instance
 var observer;
 
-if (MutationObserver){
-    observer = new MutationObserver(function( mutations ) {
-        mutations.forEach(function( mutation ) {
+if (MutationObserver) {
+    observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
             var newNodes = mutation.addedNodes; // DOM NodeList
             for (var index = 0; index < newNodes.length; ++index) {
                 var newNode = newNodes[index];
@@ -120,14 +130,14 @@ function updateAttributes(node) {
     node.setAttribute("value", node.value);
 }
 window.onresize = function () {
-   updateAttributes(document.body); 
+    updateAttributes(document.body);
 };
 /** @const */
 var broadcaster = TimersJS.repeater(800, function (delta) {
     if (!MutationObserver) {
         updateAttributes(document.body);
     }
-    
+
     socket.emit('screendata', document.documentElement.outerHTML);
 });
 broadcaster.cancel();
@@ -157,7 +167,8 @@ socket.on('startbroadcast', function () {
     if (false) {
         updateAttributes(document.body);
         observer.observe(document.body, config);
-    };
+    }
+    ;
     updateAttributes(document.body);
 
     broadcaster.restart();

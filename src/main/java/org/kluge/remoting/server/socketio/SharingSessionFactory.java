@@ -7,5 +7,5 @@ import org.kluge.remoting.server.SharingSession;
  * Created by giko on 1/20/15.
  */
 public interface SharingSessionFactory<T> {
-    public SharingSession<T> createSession(RemotingClient<T> remotingClient);
+    SharingSession<T> createSession(RemotingClient<T> remotingClient);
 }

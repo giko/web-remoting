@@ -1,23 +1,43 @@
-<div class="container" ng-controller="mainCtrl">
+<div style="float: left">
     <table>
         <thead>
         <tr>
-            <td></td>
-            <td>Name</td>
-            <td>Location</td>
+            <td ng-click="updateOrder('info.active')">S</td>
+            <td ng-click="updateOrder('info.name')">Name</td>
+            <td ng-click="updateOrder('info.location')">Location</td>
+            <td ng-click="updateOrder('info.ping')">ping</td>
         </tr>
         </thead>
         <tbody>
         <tr>
             <td></td>
-            <td><input ng-model="search.client.info.name"></td>
-            <td><input ng-model="search.client.info.location"></td>
+            <td><input ng-model="search.info.name"></td>
+            <td><input ng-model="search.info.location"></td>
         </tr>
-        <tr ng-dblclick="connect(client.uuid)" ng-repeat="(key, client) in data.clients | filter:search:false">
-            <td><div class="circle" ng-class="{circleActive: client.info.active, circleAway: !client.info.active}"></div></td>
+        <tr ng-click="toggleConnection(client.uuid)"
+            ng-dblclick="connect(client.uuid)"
+            ng-repeat="client in data.clients | toArray | filter:search:false | orderBy: data.order : data.reverseOrder">
+            <td>
+                <div class="circle"
+                     ng-class="{circleActive: client.info.active, circleAway: !client.info.active, checked: connected(client.uuid)}"></div>
+            </td>
             <td>{{client.info.name}}</td>
             <td>{{client.info.location}}</td>
+            <td>{{client.info.ping}}</td>
         </tr>
         </tbody>
     </table>
+    <button ng-click="data.page = data.page-1"><</button>
+    <input ng-model="data.page">
+    <button ng-click="data.page = data.page+1">></button>
+</div>
+<div>
+    <input ng-model="title">
+    <input ng-model="text">
+    <input ng-model="type">
+    <button ng-click="sendMessage(title,text,type)">send</button>
+    <input ng-model="time">
+    <button ng-click="countdown(time)">count</button>
+    <button ng-click="reload()">reload</button>
+    <button ng-click="ping()">ping</button>
 </div>

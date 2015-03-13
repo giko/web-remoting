@@ -6,12 +6,19 @@
     <script src="zepto.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-route.js"></script>
+    <script type="text/javascript" src="angular-filter.js"></script>
     <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
         td {
             margin: 0;
             padding: 0;
             border-right: dashed 1px;
         }
+
         .circle {
             border-radius: 50%;
             display: inline-block;
@@ -20,17 +27,22 @@
             height: 10px;
         }
 
+        .checked {
+            background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Red_check.svg/600px-Red_check.svg.png");
+            background-size: 10px 10px;
+        }
+
         .circleActive {
-            background: green;
+            background-color: green;
         }
 
         .circleAway {
-            background: goldenrod;
+            background-color: goldenrod;
         }
     </style>
     <script src="socket.js"></script>
     <script>
-        var app = angular.module('remoting', ['ngRoute', 'btford.socket-io']);
+        var app = angular.module('remoting', ['ngRoute', 'btford.socket-io', 'angular.filter']);
 
         app.factory('socket', function (socketFactory) {
             return socketFactory({
@@ -97,25 +109,41 @@
             socket.on("disconnected", function () {
                 $location.path("/");
             });
-            $scope.sendMessage = function (title, message, type) {
-                socket.emit("showmessage", {title: title, message: message, type: type});
-            };
+
             $scope.disconnect = function () {
                 socket.emit("unsupervise");
             };
-
-            $scope.countdown = function (time) {
-                socket.emit("countdown", time);
-            }
         });
         app.controller('homeCtrl', function ($scope, $routeParams, $location, socket) {
             socket.emit('supervisor');
 
-            $scope.data = {clients:{}};
+            $scope.data = {order: 'info.active', reverseOrder: true, clients: {}, connectedTo: [], page: 0};
 
             socket.on('client_updated', function (data) {
                 $scope.data.clients[data.uuid] = data;
             });
+            
+            socket.on('connected_to', function(uuid){
+                $scope.data.connectedTo.push(uuid);
+            });
+
+            socket.on('disconnected_from', function(uuid){
+                $scope.data.connectedTo.splice($scope.data.connectedTo.indexOf(uuid), 1)
+            });
+            
+            $scope.connected = function(uuid) {
+                return $scope.data.connectedTo.indexOf(uuid) !== -1;
+            };
+
+            $scope.updateOrder = function (order) {
+                if ($scope.data.order === order) {
+                    $scope.data.reverseOrder = !$scope.data.reverseOrder;
+                    return;
+                }
+
+                $scope.data.order = order;
+                $scope.data.reverseOrder = true;
+            };
 
             socket.on('client_disconnected', function (data) {
                 delete $scope.data.clients[data];
@@ -123,12 +151,34 @@
 
             $scope.connect = function (clientid) {
                 $location.path("/client/" + clientid);
-            }
+            };
+            $scope.toggleConnection = function (clientid) {
+                socket.emit('toggle_connect', clientid);
+            };
+            $scope.toggleAll = function () {
+                $scope.data.clients.forEach(function (client) {
+                    socket.emit('toggle_connect', client.uuid);
+                });
+            };
+            $scope.reload = function () {
+                socket.emit("requestreload");
+            };
+            $scope.ping = function () {
+                socket.emit("requestping");
+            };
+
+            $scope.sendMessage = function (title, message, type) {
+                socket.emit("showmessage", {title: title, message: message, type: type});
+            };
+
+            $scope.countdown = function (time) {
+                socket.emit("countdown", time);
+            };
         });
     </script>
 </head>
 <body ng-app="remoting" ng-controller="mainCtrl">
-
-<div ng-view style="height: 100%; width: 100%"></div>
+<!--<div style="margin:0; padding:0;width: 100%; height: 50px;"></div>-->
+<div ng-view style="height: 100%; width: 100%;"></div>
 </body>
 </html>
