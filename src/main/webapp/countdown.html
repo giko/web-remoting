@@ -1,0 +1,16 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>COUNT_DOWN</h3>
+</div>
+<div class="modal-body">
+    <p style="padding: 15px;" class="bg-danger">{{'COUNTDOWN_WILL_BE_SHOWN_TO_ALL_USERS' | translate:getConnectedUsersCount()}}</p>
+    <form>
+        <div class="form-group">
+            <label for="messagetime" translate>TIME</label>
+            <input type="number" class="form-control" id="messagetime" ng-attr-placeholder="{{'ENTER_TIME' | translate}}" ng-model="time">
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()" translate>SEND</button>
+    <button class="btn btn-warning" ng-click="cancel()" translate>CANCEL</button>
+</div>

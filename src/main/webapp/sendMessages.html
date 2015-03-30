@@ -1,0 +1,28 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>SEND_MESSAGE</h3>
+</div>
+<div class="modal-body">
+    <p style="padding: 15px;" class="bg-danger">{{'MESSAGE_WILL_BE_SENT_TO_ALL_USERS' | translate:getConnectedUsersCount()}}</p>
+    <form>
+        <div class="form-group">
+            <label for="messagetype" translate>TYPE</label>
+            <select class="form-control" id="messagetype" ng-model="data.type">
+                <option value="info" translate>INFO</option>
+                <option value="error" translate>ERROR</option>
+                <option value="warning" translate>WARNING</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="messagetitle" translate>TITLE</label>
+            <input type="text" class="form-control" id="messagetitle" ng-attr-placeholder="{{'ENTER_TITLE' | translate}}" ng-model="data.title">
+        </div>
+        <div class="form-group">
+            <label for="messagetext" translate>MESSAGE</label>
+            <textarea type="text" class="form-control" id="messagetext" ng-attr-placeholder="{{'ENTER_TEXT' | translate}}" ng-model="data.message"></textarea>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()" translate>SEND</button>
+    <button class="btn btn-warning" ng-click="cancel()" translate>CANCEL</button>
+</div>

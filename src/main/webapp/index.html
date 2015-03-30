@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head lang="en">
+    <title>Remoting</title>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.socket.io/socket.io-1.2.1.js"></script>
-    <script src="zepto.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-route.js"></script>
-    <script type="text/javascript" src="angular-filter.js"></script>
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script type="text/javascript" src="bower_components/angular-filter/dist/angular-filter.js"></script>
+    <script type="text/javascript" src="bower_components/chardin.js/chardinjs.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular-help-overlay/lib/angular-help-overlay.min.js"></script>
+    <script type="text/javascript"
+            src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="bower_components/chardin.js/chardinjs.css">
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+    <script src="bower_components/angular-socket-io/socket.min.js"></script>
+    <script src="bower_components/angular-translate/angular-translate.min.js"></script>
+    <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
     <style>
-        body {
-            padding: 0;
-            margin: 0;
-        }
-
-        td {
-            margin: 0;
-            padding: 0;
-            border-right: dashed 1px;
-        }
-
         .circle {
             border-radius: 50%;
             display: inline-block;
@@ -40,14 +40,81 @@
             background-color: goldenrod;
         }
     </style>
-    <script src="socket.js"></script>
     <script>
-        var app = angular.module('remoting', ['ngRoute', 'btford.socket-io', 'angular.filter']);
+        function guid() {
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                        .toString(16)
+                        .substring(1);
+            }
 
-        app.factory('socket', function (socketFactory) {
-            return socketFactory({
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+                    s4() + '-' + s4() + s4() + s4();
+        }
+        var app = angular.module('remoting', ['ngRoute', 'btford.socket-io', 'angular.filter', 'angularHelpOverlay', 'ui.bootstrap', 'pascalprecht.translate'], ['$translateProvider', function ($translateProvider) {
+            $translateProvider.useStaticFilesLoader({
+                prefix: '',
+                suffix: '.json'
+            });
+            $translateProvider.determinePreferredLanguage();
+        }]);
+
+        app.factory('socket', function (socketFactory, state) {
+            socket = socketFactory({
                 ioSocket: io.connect('https://rpc.ventra.ru/')
             });
+
+            socket.addListener('connect', function () {
+                socket.emit('supervisor');
+            });
+            socket.on('client_updated', function (data) {
+                state.clients[data.uuid] = data;
+            });
+
+            socket.on('connected_to', function (uuid) {
+                state.connectedTo.push(uuid);
+            });
+
+            socket.on('disconnected_from', function (uuid) {
+                state.connectedTo.splice(state.connectedTo.indexOf(uuid), 1)
+            });
+
+            socket.on('client_disconnected', function (uuid) {
+                delete state.clients[uuid];
+                state.connectedTo.splice(state.connectedTo.indexOf(uuid), 1)
+            });
+
+            return socket;
+        });
+
+        app.factory('navbarButtons', function () {
+            var buttons = [];
+            return {
+                getButtons: function () {
+                    return buttons;
+                },
+                push: function (button) {
+                    buttons.push(button);
+                },
+                removeAll: function (uuid) {
+                    for (var i = 0; i < buttons.length; ++i) {
+                        if (buttons[i].uuid === uuid) {
+                            buttons.splice(i, 1);
+                            i = 0;
+                        }
+                    }
+                }
+            };
+        });
+
+        app.factory('state', function () {
+            var state = {order: 'info.active', reverseOrder: true, clients: {}, connectedTo: []};
+            
+            state.getConnectedUsersCount = function(){
+                return this.connectedTo.length;
+            };
+
+            return state;
         });
 
         app.config(function ($routeProvider, $locationProvider) {
@@ -75,79 +142,120 @@
             });
         });
 
-        app.controller('mainCtrl', function ($scope, $location, socket) {
-            socket.on('message', function (data) {
-                console.log(data);
+        app.controller('mainCtrl', function ($scope, $location, socket, navbarButtons, $translate) {
+            $scope.getButtons = navbarButtons.getButtons;
+            $scope.showHelp = false;
+
+            navbarButtons.push({
+                text: 'SHOW_HELP',
+                action: function () {
+                    $scope.showHelp = !$scope.showHelp
+                }
             });
 
-            socket.on('connect', function () {
-                socket.emit('supervisor');
-//                $location.path("/");
+            navbarButtons.push({
+                text: 'CHANGE_LANGUAGE',
+                action: function () {
+                    $translate.use(($translate.use() === 'en_US') ? 'ru_RU' : 'en_US');
+                }
             });
         });
 
-        app.controller('clientCtrl', function ($scope, $routeParams, $location, socket) {
-            socket.emit("supervise", $routeParams.clientid);
-            socket.on('screen', function (data) {
-                var doc = document.getElementById('frame').contentWindow.document;
-                doc.open();
-                doc.write(data);
-                doc.close();
-                $(doc).find('[scrollTop],[scrollLeft]').each(function () {
-                    $(this).scrollTop($(this).attr("scrollTop"));
-                    $(this).scrollLeft($(this).attr("scrollLeft"));
-                });
-                $(doc).find('body').width($(doc).find('body').attr('absWidth'));
-                $(doc).find('body').height($(doc).find('body').attr('absHeight'));
-                var xScale = $('body').width() / $(doc).find('body').width();
-                var yScale = $('body').height() / $(doc).find('body').height();
-                $('#frame').width($(doc).find('body').width());
-                $('#frame').height($(doc).find('body').height());
-//                $('#frame').css('transform', 'scale('+xScale+', '+yScale+')');
-//                $('#frame').css('transform-origin', 'top left');
-            });
-            socket.on("disconnected", function () {
-                $location.path("/");
-            });
+        app.controller('sendMessagesModal', function ($scope, $modalInstance, state) {
+            $scope.data = {type: 'info'};
+            $scope.ok = function () {
+                $modalInstance.close({message: $scope.data.message, type: $scope.data.type, title: $scope.data.title});
+            };
 
-            $scope.disconnect = function () {
-                socket.emit("unsupervise");
+            $scope.getConnectedUsersCount = function() {
+                return {users_num: state.getConnectedUsersCount()};
+            };
+
+            $scope.cancel = function () {
+                $modalInstance.dismiss('cancel');
             };
         });
-        app.controller('homeCtrl', function ($scope, $routeParams, $location, socket) {
-            socket.emit('supervisor');
+        
+        app.controller('countdownModal', function ($scope, $modalInstance, state) {
+            $scope.ok = function () {
+                $modalInstance.close($scope.time);
+            };
 
-            $scope.data = {order: 'info.active', reverseOrder: true, clients: {}, connectedTo: [], page: 0};
+            $scope.getConnectedUsersCount = function() {
+                return {users_num: state.getConnectedUsersCount()};
+            };
 
-            socket.on('client_updated', function (data) {
-                $scope.data.clients[data.uuid] = data;
-            });
-            
-            socket.on('connected_to', function(uuid){
-                $scope.data.connectedTo.push(uuid);
+            $scope.cancel = function () {
+                $modalInstance.dismiss('cancel');
+            };
+        });
+
+
+        app.controller('clientCtrl', function ($scope, $routeParams, $location, socket, navbarButtons) {
+            function init() {
+                socket.emit("supervise", $routeParams.clientid);
+                socket.on('screen', function (data) {
+                    var doc = document.getElementById('frame').contentWindow.document;
+                    doc.open();
+                    doc.write(data);
+                    doc.close();
+                    $(doc).find('[scrollTop],[scrollLeft]').each(function () {
+                        $(this).scrollTop($(this).attr("scrollTop"));
+                        $(this).scrollLeft($(this).attr("scrollLeft"));
+                    });
+                    $(doc).find('body').width($(doc).find('body').attr('absWidth'));
+                    $(doc).find('body').height($(doc).find('body').attr('absHeight'));
+                    //var xScale = $('body').width() / $(doc).find('body').width();
+                    //var yScale = $('body').height() / $(doc).find('body').height();
+                    $('#frame').width($(doc).find('body').width());
+                    $('#frame').height($(doc).find('body').height());
+//                $('#frame').css('transform', 'scale('+xScale+', '+yScale+')');
+//                $('#frame').css('transform-origin', 'top left');
+                });
+                socket.on("disconnected", function () {
+                    $location.path("/");
+                });
+            }
+
+            init();
+            socket.addListener('connect', function () {
+                init();
             });
 
-            socket.on('disconnected_from', function(uuid){
-                $scope.data.connectedTo.splice($scope.data.connectedTo.indexOf(uuid), 1)
+            var uuid = guid();
+            $scope.$on('$destroy', function iVeBeenDismissed() {
+                navbarButtons.removeAll(uuid);
+                socket.emit("unsupervise");
             });
-            
-            $scope.connected = function(uuid) {
-                return $scope.data.connectedTo.indexOf(uuid) !== -1;
+            navbarButtons.push({
+                uuid: uuid,
+                text: 'DISCONNECT',
+                action: function () {
+                    $location.path("/");
+                }
+            });
+        });
+        app.controller('homeCtrl', function ($scope, $routeParams, $location, socket, navbarButtons, $modal, state) {
+            var uuid = guid();
+            $scope.$on('$destroy', function () {
+                navbarButtons.removeAll(uuid)
+            });
+
+            $scope.data = state;
+
+            $scope.connected = function (uuid) {
+                return state.connectedTo.indexOf(uuid) !== -1;
             };
 
             $scope.updateOrder = function (order) {
-                if ($scope.data.order === order) {
-                    $scope.data.reverseOrder = !$scope.data.reverseOrder;
+                if (state.order === order) {
+                    state.reverseOrder = !state.reverseOrder;
                     return;
                 }
 
-                $scope.data.order = order;
-                $scope.data.reverseOrder = true;
+                state.order = order;
+                state.reverseOrder = true;
             };
-
-            socket.on('client_disconnected', function (data) {
-                delete $scope.data.clients[data];
-            });
 
             $scope.connect = function (clientid) {
                 $location.path("/client/" + clientid);
@@ -156,29 +264,78 @@
                 socket.emit('toggle_connect', clientid);
             };
             $scope.toggleAll = function () {
-                $scope.data.clients.forEach(function (client) {
+                state.clients.forEach(function (client) {
                     socket.emit('toggle_connect', client.uuid);
                 });
             };
-            $scope.reload = function () {
-                socket.emit("requestreload");
-            };
-            $scope.ping = function () {
-                socket.emit("requestping");
-            };
-
-            $scope.sendMessage = function (title, message, type) {
-                socket.emit("showmessage", {title: title, message: message, type: type});
-            };
-
-            $scope.countdown = function (time) {
-                socket.emit("countdown", time);
-            };
+            
+            navbarButtons.push({
+                uuid: uuid,
+                text: 'PING',
+                action: function () {
+                    socket.emit("requestping");
+                }
+            });
+            navbarButtons.push({
+                uuid: uuid,
+                text: 'RELOAD',
+                tooltip: 'RELOAD_TOOLTIP',
+                action: function () {
+                    socket.emit("requestreload");
+                }
+            });
+            navbarButtons.push({
+                uuid: uuid,
+                text: 'COUNT_DOWN',
+                tooltip: 'COUNT_DOWN_TIP',
+                action: function () {
+                    var modalInstance = $modal.open({
+                        templateUrl: 'countdown.html',
+                        controller: 'countdownModal'
+                    });
+                    modalInstance.result.then(function (time) {
+                        socket.emit("countdown", time);
+                    });
+                }
+            });
+            navbarButtons.push({
+                uuid: uuid,
+                text: 'SEND_MESSAGE',
+                action: function () {
+                    var modalInstance = $modal.open({
+                        templateUrl: 'sendMessages.html',
+                        controller: 'sendMessagesModal'
+                    });
+                    modalInstance.result.then(function (message) {
+                        socket.emit("showmessage", message);
+                    });
+                }
+            });
         });
     </script>
 </head>
 <body ng-app="remoting" ng-controller="mainCtrl">
-<!--<div style="margin:0; padding:0;width: 100%; height: 50px;"></div>-->
-<div ng-view style="height: 100%; width: 100%;"></div>
+<div translate-cloak help-overlay="showHelp">
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <a class="navbar-brand">Remoting</a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul ng-attr-data-intro="{{'HOW_PERFORM_ACTION' | translate}}" data-position="right"
+                    class="nav navbar-nav">
+                    <button translate ng-repeat="button in getButtons()" type="button" ng-click="button.action()"
+                            class="btn btn-default navbar-btn" tooltip="{{button.tooltip | translate}}"
+                            tooltip-placement="bottom">{{button.text}}
+                    </button>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid" ng-view style="height: 100%; width: 100%;"></div>
+</div>
 </body>
 </html>
