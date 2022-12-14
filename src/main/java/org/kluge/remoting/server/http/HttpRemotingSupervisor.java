@@ -9,9 +9,6 @@ import org.kluge.remoting.server.RemotingServer;
 import org.kluge.remoting.server.TextMessage;
 import org.kluge.remoting.server.UserInfo;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
@@ -26,8 +23,7 @@ public class HttpRemotingSupervisor extends AbstractRemotingSupervisor<String> {
         this.httpServer = httpServer;
         httpServer.setHandler(new AbstractHandler() {
             @Override
-            public void handle(String s, Request request, HttpServletRequest httpServletRequest,
-                               HttpServletResponse httpServletResponse) throws IOException, ServletException {
+            public void handle(String s, Request request, jakarta.servlet.http.HttpServletRequest httpServletRequest, jakarta.servlet.http.HttpServletResponse httpServletResponse) throws IOException, jakarta.servlet.ServletException {
                 server.getRemotingClients().stream()
                         .filter(stringRemotingClient ->
                                 stringRemotingClient.getInfo().orElseGet(UserInfo::new).getLocation()
