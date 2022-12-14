@@ -18,7 +18,6 @@ public class Main {
         config.setMaxHttpContentLength(Integer.MAX_VALUE);
         config.setMaxFramePayloadLength(Integer.MAX_VALUE);
         config.getSocketConfig().setReuseAddress(true);
-        config.setUseLinuxNativeEpoll(true);
 
         Server httpServer = new Server(8085);
         final SocketIOServer server = new SocketIOServer(config);
