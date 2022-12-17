@@ -2,6 +2,10 @@ package org.kluge.remoting.server;
 
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
+import de.hasait.clap.CLAP;
+import de.hasait.clap.CLAPResult;
+import de.hasait.clap.CLAPValue;
+import de.hasait.clap.shadeddeps.oaclang3.ObjectUtils;
 import org.eclipse.jetty.server.Server;
 import org.kluge.remoting.server.http.HttpRemotingSupervisor;
 import org.kluge.remoting.server.socketio.SocketIORemotingServer;
@@ -12,14 +16,21 @@ import org.kluge.remoting.server.socketio.SocketIORemotingServer;
 public class Main {
 
     public static void main(String[] args) {
+        CLAP clap = new CLAP();
+        CLAPValue<String> hostNameOption = clap.addOption1(String.class,'b', "bind", false, "Bind hostname", "bind");
+        CLAPValue<Integer> httpPortOption = clap.addOption1(Integer.class, 'p', "httpPort", false, "Http port", "httpPort");
+        CLAPValue<Integer> websocketPortOption = clap.addOption1(Integer.class, 'w', "wsPort", false, "Websocket port", "wsPort");
+
+        CLAPResult result = clap.parse(args);
+
         Configuration config = new Configuration();
-        config.setHostname("0.0.0.0");
-        config.setPort(8082);
+        config.setHostname(ObjectUtils.defaultIfNull(result.getValue(hostNameOption), "0.0.0.0"));
+        config.setPort(ObjectUtils.defaultIfNull(result.getValue(websocketPortOption), 8082));
         config.setMaxHttpContentLength(Integer.MAX_VALUE);
         config.setMaxFramePayloadLength(Integer.MAX_VALUE);
         config.getSocketConfig().setReuseAddress(true);
 
-        Server httpServer = new Server(8085);
+        Server httpServer = new Server(ObjectUtils.defaultIfNull(result.getValue(httpPortOption), 8085));
         final SocketIOServer server = new SocketIOServer(config);
 
         RemotingServer<String> remotingServer = new SocketIORemotingServer<>(server, String.class,
