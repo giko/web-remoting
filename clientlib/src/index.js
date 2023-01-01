@@ -110,6 +110,9 @@ if (window.webRemotingHost) {
 }
 
 export function init(host) {
+    let broadcasterInterval;
+    let infoBroadcasterInterval;
+
     socket = io(host);
     socket.on('message', function (data) {
         // swal({title: data.title, text: data.message, type: data.type});
@@ -120,8 +123,8 @@ export function init(host) {
         infoBroadcasterInterval = setInterval(infoBroadcaster, 400);
     });
     socket.on('disconnect', function () {
-        broadcaster.cancel();
-        infoBroadcaster.cancel();
+        clearInterval(broadcasterInterval);
+        clearInterval(infoBroadcasterInterval);
     });
     socket.on('reload', function () {
         location.reload();
@@ -131,18 +134,14 @@ export function init(host) {
         socket.emit('pongDom', {html: document.documentElement.outerHTML, time: time});
     });
 
-    let broadcasterInterval;
-    let infoBroadcasterInterval;
 
     socket.on('startbroadcast', function () {
         updateAttributes(document.body);
 
         broadcasterInterval = setInterval(broadcaster, 1000);
-        infoBroadcasterInterval = setInterval(infoBroadcaster, 400);
     });
 
     socket.on('stopbroadcast', function () {
         clearInterval(broadcasterInterval);
-        clearInterval(infoBroadcasterInterval);
     });
 }
