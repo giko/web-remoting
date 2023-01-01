@@ -100,7 +100,8 @@ const infoBroadcaster = () => {
     socket.emit('userinfo', {
         x: mouseX,
         y: mouseY,
-        location: window.location.href,
+        location: window.location.origin,
+        fullLocation: window.location.href,
         isActive: isActive,
     });
 };

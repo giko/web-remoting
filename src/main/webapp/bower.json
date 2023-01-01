@@ -23,7 +23,10 @@
     "angular-filter": ">=0.5.4",
     "bootstrap": ">=3.3.4",
     "angular-socket-io": ">=0.7.0",
-    "angular-translate": "~2.6.1",
-    "angular-translate-loader-static-files": "~2.6.1"
+    "angular-translate": ">=2.6.1",
+    "angular-translate-loader-static-files": ">=2.6.1"
+  },
+  "resolutions": {
+    "angular": "1.8.3"
   }
 }

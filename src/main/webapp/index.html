@@ -61,7 +61,7 @@
 
         app.factory('socket', function (socketFactory, state) {
             socket = socketFactory({
-                ioSocket: io.connect('https://rpc.ventra.ru/')
+                ioSocket: io.connect('http://localhost:8082')
             });
 
             socket.addListener('connect', function () {
@@ -161,10 +161,10 @@
             });
         });
 
-        app.controller('sendMessagesModal', function ($scope, $modalInstance, state) {
+        app.controller('sendMessagesModal', function ($scope, $uibModalInstance, state) {
             $scope.data = {type: 'info'};
             $scope.ok = function () {
-                $modalInstance.close({message: $scope.data.message, type: $scope.data.type, title: $scope.data.title});
+                $uibModalInstance.close({message: $scope.data.message, type: $scope.data.type, title: $scope.data.title});
             };
 
             $scope.getConnectedUsersCount = function() {
@@ -172,13 +172,13 @@
             };
 
             $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
+                $uibModalInstance.dismiss('cancel');
             };
         });
         
-        app.controller('countdownModal', function ($scope, $modalInstance, state) {
+        app.controller('countdownModal', function ($scope, $uibModalInstance, state) {
             $scope.ok = function () {
-                $modalInstance.close($scope.time);
+                $uibModalInstance.close($scope.time);
             };
 
             $scope.getConnectedUsersCount = function() {
@@ -186,7 +186,7 @@
             };
 
             $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
+                $uibModalInstance.dismiss('cancel');
             };
         });
 
@@ -235,7 +235,7 @@
                 }
             });
         });
-        app.controller('homeCtrl', function ($scope, $routeParams, $location, socket, navbarButtons, $modal, state) {
+        app.controller('homeCtrl', function ($scope, $routeParams, $location, socket, navbarButtons, $uibModal, state) {
             var uuid = guid();
             $scope.$on('$destroy', function () {
                 navbarButtons.removeAll(uuid)
@@ -289,7 +289,7 @@
                 text: 'COUNT_DOWN',
                 tooltip: 'COUNT_DOWN_TIP',
                 action: function () {
-                    var modalInstance = $modal.open({
+                    var modalInstance = $uibModal.open({
                         templateUrl: 'countdown.html',
                         controller: 'countdownModal'
                     });
@@ -302,7 +302,7 @@
                 uuid: uuid,
                 text: 'SEND_MESSAGE',
                 action: function () {
-                    var modalInstance = $modal.open({
+                    var modalInstance = $uibModal.open({
                         templateUrl: 'sendMessages.html',
                         controller: 'sendMessagesModal'
                     });

@@ -21,7 +21,7 @@ public class DomSharingSession extends AbstractSharingSession<String> {
                             .append("<img style=\"z-index:2000;position: absolute; left:" + userInfo.getX() +
                                     "px;top:" +
                                     userInfo.getY() +
-                                    "px;\" src=\"https://rpc.ventra.ru/static/cursor.png\" width=\"11px\" id=\"pointer\">");
+                                    "px;\" src=\"https://github.com/giko/web-remoting/raw/master/clientlib/src/cursor.png\" width=\"11px\" id=\"pointer\">");
                     document.select("[href], [src]").forEach(element -> {
                         if (!element.attr("href").startsWith("http") && !element.attr("href").startsWith("data:image")) {
                             element.attr("href", userInfo.getLocation() + "/" + element.attr("href"));

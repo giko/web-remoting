@@ -8,6 +8,7 @@ import java.util.Objects;
 public class UserInfo {
     private String name;
     private String location;
+    private String fullLocation;
     private Integer x;
     private Integer y;
     private Boolean isActive;
