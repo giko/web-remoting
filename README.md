@@ -11,3 +11,14 @@ Using docker run following command to start the server:
 ```bash
 docker run -ti -p 8082:8082 -p 8085:8085 ghcr.io/giko/web-remoting:latest
 ```
+
+# Frontend lib usage
+
+```html
+<script type="text/javascript" src="https://unpkg.com/web-remoting-client"></script>
+<script type="text/javascript">
+    // your remoting backend host and port goes here
+    window.webRemotingHost = "http://localhost:8082";
+    window.webRemotingClient.init(window.webRemotingHost);
+</script>
+```
