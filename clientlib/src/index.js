@@ -26,8 +26,6 @@ window.onblur = function () {
     isActive = false;
 };
 
-const base = window.location.href.substr(0, window.location.href.lastIndexOf('/'));
-
 const MutationObserver = (function () {
     var prefixes = ['WebKit', 'Moz', 'O', 'Ms', ''];
     for (var i = 0; i < prefixes.length; i++) {
@@ -102,7 +100,7 @@ const infoBroadcaster = () => {
     socket.emit('userinfo', {
         x: mouseX,
         y: mouseY,
-        location: base,
+        location: window.location.href,
         isActive: isActive,
     });
 };

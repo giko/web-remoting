@@ -43,7 +43,6 @@ public class SocketIORemotingServer<T> implements RemotingServer<T> {
         });
 
         socketIOServer.addEventListener("userinfo", UserInfo.class, (client, data, ackSender) -> {
-            data.setLocation(data.getLocation().substring(0, Math.min(data.getLocation().length(), 30)));
             if (!clients.get(client).getInfo().equals(Optional.of(data))) {
                 clients.get(client).setInfo(data);
                 notifyUpdated(clients.get(client));
