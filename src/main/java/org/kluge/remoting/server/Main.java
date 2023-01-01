@@ -1,6 +1,7 @@
 package org.kluge.remoting.server;
 
 import com.corundumstudio.socketio.Configuration;
+import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPResult;
@@ -26,8 +27,8 @@ public class Main {
         Configuration config = new Configuration();
         config.setHostname(ObjectUtils.defaultIfNull(result.getValue(hostNameOption), "0.0.0.0"));
         config.setPort(ObjectUtils.defaultIfNull(result.getValue(websocketPortOption), 8082));
-        config.setMaxHttpContentLength(Integer.MAX_VALUE);
-        config.setMaxFramePayloadLength(Integer.MAX_VALUE);
+//        config.setMaxHttpContentLength(Integer.MAX_VALUE);
+//        config.setMaxFramePayloadLength(Integer.MAX_VALUE);
         config.getSocketConfig().setReuseAddress(true);
 
         Server httpServer = new Server(ObjectUtils.defaultIfNull(result.getValue(httpPortOption), 8085));

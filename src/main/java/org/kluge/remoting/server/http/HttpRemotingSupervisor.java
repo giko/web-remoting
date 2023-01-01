@@ -23,7 +23,7 @@ public class HttpRemotingSupervisor extends AbstractRemotingSupervisor<String> {
         this.httpServer = httpServer;
         httpServer.setHandler(new AbstractHandler() {
             @Override
-            public void handle(String s, Request request, jakarta.servlet.http.HttpServletRequest httpServletRequest, jakarta.servlet.http.HttpServletResponse httpServletResponse) throws IOException, jakarta.servlet.ServletException {
+            public void handle(String s, Request request, jakarta.servlet.http.HttpServletRequest httpServletRequest, jakarta.servlet.http.HttpServletResponse httpServletResponse) {
                 server.getRemotingClients().stream()
                         .filter(stringRemotingClient ->
                                 stringRemotingClient.getInfo().orElseGet(UserInfo::new).getLocation()
