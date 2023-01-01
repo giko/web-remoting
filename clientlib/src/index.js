@@ -107,6 +107,10 @@ const infoBroadcaster = () => {
     });
 };
 
+if (window.webRemotingHost) {
+    init(window.webRemotingHost);
+}
+
 export function init(host) {
     socket = io(host);
     socket.on('message', function (data) {
