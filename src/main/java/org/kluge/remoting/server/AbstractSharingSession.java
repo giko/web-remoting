@@ -10,13 +10,19 @@ public abstract class AbstractSharingSession<T> implements SharingSession<T> {
     final RemotingClient<T> client;
     final Set<RemotingSupervisor<T>> supervisors = new HashSet<>();
 
+    protected T previousState;
+
     public AbstractSharingSession(RemotingClient<T> client) {
         this.client = client;
     }
 
     @Override
     public void broadcast(T data) {
+        if (previousState != null && previousState.equals(data)) {
+            return;
+        }
         supervisors.forEach(supervisor -> supervisor.send(transform(data)));
+        previousState = data;
     }
 
     protected abstract T transform(T data);

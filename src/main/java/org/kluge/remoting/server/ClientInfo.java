@@ -11,7 +11,7 @@ public class ClientInfo {
 
     public ClientInfo(RemotingClient<?> client) {
         uuid = client.getUUID();
-        info = client.getInfo().orElse(null);
+        info = client.getInfo();
     }
 
     public UserInfo getInfo() {

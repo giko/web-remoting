@@ -15,7 +15,7 @@ import java.util.UUID;
 public class SocketIORemotingClient<T> implements UpdatableRemotingClient<T> {
     private final SocketIOClient socketIOClient;
     private final SharingSession<T> session;
-    private Optional<UserInfo> info = Optional.empty();
+    private UserInfo info;
 
     public SocketIORemotingClient(SocketIOClient socketIOClient, SharingSessionFactory<T> sessionFactory) {
         if (socketIOClient == null) {
@@ -80,14 +80,16 @@ public class SocketIORemotingClient<T> implements UpdatableRemotingClient<T> {
     }
 
     @Override
-    public Optional<UserInfo> getInfo() {
+    public UserInfo getInfo() {
         return info;
     }
 
     @Override
     public void setInfo(UserInfo info) {
-        this.info.ifPresent(userInfo -> info.setPing(userInfo.getPing()));
-        this.info = Optional.of(info);
+        if (this.info != null) {
+            info.setPing(this.info.getPing());
+        }
+        this.info = info;
     }
 
     @Override

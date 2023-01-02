@@ -38,12 +38,14 @@ public class SocketIORemotingServer<T> implements RemotingServer<T> {
         );
 
         socketIOServer.addEventListener("pongDom", PongRequest.class, (socketIOClient, pongRequest, ackRequest) -> {
-            clients.get(socketIOClient).getInfo().ifPresent(info -> info.setPing(System.currentTimeMillis() - pongRequest.getTime()));
+            if (clients.get(socketIOClient).getInfo() != null) {
+                clients.get(socketIOClient).getInfo().setPing(System.currentTimeMillis() - pongRequest.getTime());
+            }
             notifyUpdated(clients.get(socketIOClient));
         });
 
         socketIOServer.addEventListener("userinfo", UserInfo.class, (client, data, ackSender) -> {
-            if (!clients.get(client).getInfo().equals(Optional.of(data))) {
+            if (!data.equals(clients.get(client).getInfo())) {
                 clients.get(client).setInfo(data);
                 notifyUpdated(clients.get(client));
             }

@@ -1,8 +1,5 @@
 package org.kluge.remoting.server;
 
-import java.util.Optional;
-import java.util.UUID;
-
 /**
  * Created by giko on 12/29/14.
  */
@@ -13,7 +10,7 @@ public interface RemotingClient<T> extends BatchableRemotingClient {
 
     void disconnect();
     
-    Optional<UserInfo> getInfo();
+    UserInfo getInfo();
 
     SharingSession<T> getSession();
 }

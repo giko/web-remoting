@@ -14,6 +14,7 @@ function readMouseMove(e) {
         oldMouseMove(e);
     }
 }
+
 document.onmousemove = readMouseMove;
 
 let isActive = true;
@@ -83,6 +84,7 @@ function updateAttributes(node) {
     node.setAttribute("absHeight", node.scrollHeight);
     node.setAttribute("value", node.value);
 }
+
 window.onresize = function () {
     updateAttributes(document.body);
 };
@@ -98,8 +100,10 @@ const broadcaster = delta => {
 };
 const infoBroadcaster = () => {
     socket.emit('userinfo', {
-        x: mouseX,
-        y: mouseY,
+        mouseX: mouseX,
+        mouseY: mouseY,
+        scrollX: window.scrollX,
+        scrollY: window.scrollY,
         location: window.location.origin,
         fullLocation: window.location.href,
         isActive: isActive,
@@ -115,26 +119,30 @@ export function init(host) {
     let infoBroadcasterInterval;
 
     socket = io(host);
+
     socket.on('message', function (data) {
         // swal({title: data.title, text: data.message, type: data.type});
         alert(data.message);
     });
+
     socket.on('connect', function () {
         socket.emit('client');
         infoBroadcasterInterval = setInterval(infoBroadcaster, 400);
     });
+
     socket.on('disconnect', function () {
         clearInterval(broadcasterInterval);
         clearInterval(infoBroadcasterInterval);
     });
+
     socket.on('reload', function () {
         location.reload();
     });
+
     socket.on('pingDom', function (time) {
         updateAttributes(document.body);
         socket.emit('pongDom', {html: document.documentElement.outerHTML, time: time});
     });
-
 
     socket.on('startbroadcast', function () {
         updateAttributes(document.body);

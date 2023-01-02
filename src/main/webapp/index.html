@@ -191,26 +191,39 @@
         });
 
 
-        app.controller('clientCtrl', function ($scope, $routeParams, $location, socket, navbarButtons) {
+        app.controller('clientCtrl', function ($scope, $routeParams, $location, socket, navbarButtons, state) {
             function init() {
                 socket.emit("supervise", $routeParams.clientid);
                 socket.on('screen', function (data) {
-                    var doc = document.getElementById('frame').contentWindow.document;
+                    const frame = document.getElementById('frame');
+                    var doc = frame.contentWindow.document;
                     doc.open();
                     doc.write(data);
                     doc.close();
-                    $(doc).find('[scrollTop],[scrollLeft]').each(function () {
-                        $(this).scrollTop($(this).attr("scrollTop"));
-                        $(this).scrollLeft($(this).attr("scrollLeft"));
-                    });
+                    // $(doc).find('[scrollTop],[scrollLeft]').each(function () {
+                    //     $(this).scrollTop($(this).attr("scrollTop"));
+                    //     $(this).scrollLeft($(this).attr("scrollLeft"));
+                    // });
                     $(doc).find('body').width($(doc).find('body').attr('absWidth'));
                     $(doc).find('body').height($(doc).find('body').attr('absHeight'));
                     //var xScale = $('body').width() / $(doc).find('body').width();
                     //var yScale = $('body').height() / $(doc).find('body').height();
                     $('#frame').width($(doc).find('body').width());
                     $('#frame').height($(doc).find('body').height());
+                    doc.getElementById('remoting-arrow').scrollIntoView({block: "center"});
+
 //                $('#frame').css('transform', 'scale('+xScale+', '+yScale+')');
 //                $('#frame').css('transform-origin', 'top left');
+                });
+                socket.on('client_updated', function (data) {
+                    if (data.uuid === $routeParams.clientid) {
+                        const frame = document.getElementById('frame');
+                        let doc = frame.contentWindow.document;
+                        let arrow = doc.getElementById('remoting-arrow');
+                        arrow.style.top =  data.info.mouseYAbsolute + 'px';
+                        arrow.style.left = data.info.mouseXAbsolute + 'px';
+                        arrow.scrollIntoView({block: "center"});
+                    }
                 });
                 socket.on("disconnected", function () {
                     $location.path("/");

@@ -1,5 +1,6 @@
 package org.kluge.remoting.server.http;
 
+import de.hasait.clap.shadeddeps.oaclang3.ObjectUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -24,11 +25,12 @@ public class HttpRemotingSupervisor extends AbstractRemotingSupervisor<String> {
         httpServer.setHandler(new AbstractHandler() {
             @Override
             public void handle(String s, Request request, jakarta.servlet.http.HttpServletRequest httpServletRequest, jakarta.servlet.http.HttpServletResponse httpServletResponse) {
-                server.getRemotingClients().stream()
+                server.getRemotingClients()
+                        .stream()
+                        .filter(client -> client.getInfo() != null)
                         .filter(stringRemotingClient ->
-                                stringRemotingClient.getInfo().orElseGet(UserInfo::new).getLocation()
+                                ObjectUtils.defaultIfNull(stringRemotingClient.getInfo().getLocation(), "")
                                         .startsWith(httpServletRequest.getParameter("location")))
-                        .collect(Collectors.toList())
                         .forEach(stringRemotingClient -> {
                             if (!StringUtil.isBlank(request.getParameter("countdown"))) {
                                 stringRemotingClient.displayCountDown(Long.valueOf(request.getParameter("countdown")));
