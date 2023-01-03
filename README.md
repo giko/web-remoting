@@ -1,3 +1,7 @@
+![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/giko/web-remoting?label=backend%20vulnerabilities)
+![Snyk Vulnerabilities for npm package version](https://img.shields.io/snyk/vulnerabilities/npm/web-remoting-client?label=client%20lib%20npm%20vulnerabilities)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/giko/web-remoting)
+
 # About
 
 This project allows site admins to see in realtime what users are doing on their website by transfering users dom by websocket.
