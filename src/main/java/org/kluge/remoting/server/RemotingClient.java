@@ -1,16 +1,14 @@
 package org.kluge.remoting.server;
 
-/**
- * Created by giko on 12/29/14.
- */
+/** Created by giko on 12/29/14. */
 public interface RemotingClient<T> extends BatchableRemotingClient {
-    void startSharing();
+  void startSharing();
 
-    void stopSharing();
+  void stopSharing();
 
-    void disconnect();
-    
-    UserInfo getInfo();
+  void disconnect();
 
-    SharingSession<T> getSession();
+  UserInfo getInfo();
+
+  SharingSession<T> getSession();
 }
