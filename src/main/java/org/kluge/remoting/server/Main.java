@@ -1,7 +1,6 @@
 package org.kluge.remoting.server;
 
 import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPResult;
@@ -18,7 +17,7 @@ public class Main {
 
     public static void main(String[] args) {
         CLAP clap = new CLAP();
-        CLAPValue<String> hostNameOption = clap.addOption1(String.class,'b', "bind", false, "Bind hostname", "bind");
+        CLAPValue<String> hostNameOption = clap.addOption1(String.class, 'b', "bind", false, "Bind hostname", "bind");
         CLAPValue<Integer> httpPortOption = clap.addOption1(Integer.class, 'p', "httpPort", false, "Http port", "httpPort");
         CLAPValue<Integer> websocketPortOption = clap.addOption1(Integer.class, 'w', "wsPort", false, "Websocket port", "wsPort");
 

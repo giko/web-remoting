@@ -6,7 +6,6 @@ import org.kluge.remoting.server.TextMessage;
 import org.kluge.remoting.server.UpdatableRemotingClient;
 import org.kluge.remoting.server.UserInfo;
 
-import java.util.Optional;
 import java.util.UUID;
 
 /**

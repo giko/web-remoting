@@ -17,6 +17,6 @@ public interface BatchableRemotingClient {
     void sendMessage(TextMessage message);
 
     void ping();
-    
+
     void ping(Void t);
 }

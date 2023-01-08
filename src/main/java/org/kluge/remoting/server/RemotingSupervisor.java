@@ -10,7 +10,7 @@ public interface RemotingSupervisor<T> {
     void send(T data);
 
     void connect(RemotingClient<T> client);
-    
+
     void connect(BatchableRemotingClient client);
 
     void disconnectFromClient(BatchableRemotingClient client);

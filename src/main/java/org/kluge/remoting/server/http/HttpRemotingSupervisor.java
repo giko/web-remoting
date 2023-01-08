@@ -8,10 +8,6 @@ import org.eclipse.jetty.util.StringUtil;
 import org.kluge.remoting.server.AbstractRemotingSupervisor;
 import org.kluge.remoting.server.RemotingServer;
 import org.kluge.remoting.server.TextMessage;
-import org.kluge.remoting.server.UserInfo;
-
-import java.io.IOException;
-import java.util.stream.Collectors;
 
 /**
  * Created by giko on 1/20/15.
