@@ -17,6 +17,7 @@ public class HttpRemotingSupervisor extends AbstractRemotingSupervisor<String> {
     protected RemotingServer<String> server;
 
     public HttpRemotingSupervisor(Server httpServer, RemotingServer<String> server) {
+        super(true);
         this.httpServer = httpServer;
         httpServer.setHandler(new AbstractHandler() {
             @Override

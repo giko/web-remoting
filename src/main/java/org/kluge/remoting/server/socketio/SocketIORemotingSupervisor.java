@@ -11,6 +11,7 @@ public class SocketIORemotingSupervisor<T> extends AbstractRemotingSupervisor<T>
     private final SocketIOClient client;
 
     public SocketIORemotingSupervisor(SocketIOClient client) {
+        super(false);
         this.client = client;
     }
 

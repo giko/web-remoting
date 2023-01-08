@@ -9,8 +9,12 @@ import java.util.Set;
  */
 public abstract class AbstractRemotingSupervisor<T> implements RemotingSupervisor<T> {
     private final Set<BatchableRemotingClient> clients = new HashSet<>();
-    private final Boolean isSilent = true;
+    private final Boolean isSilent;
     private Optional<RemotingClient<T>> activeClient = Optional.empty();
+
+    public AbstractRemotingSupervisor(Boolean isSilent) {
+        this.isSilent = isSilent;
+    }
 
     public void connect(RemotingClient<T> client) {
         this.activeClient = Optional.of(client);
