@@ -49,9 +49,9 @@ public class HttpRemotingSupervisor extends AbstractRemotingSupervisor<String> {
   }
 
   /**
-     * @param data The data to send to the client.
-     *             Does nothing in this implementation, as the this supervisor is not supposed to receive data.
-     */
+   * @param data The data to send to the client. Does nothing in this implementation, as the this
+   *     supervisor is not supposed to receive data.
+   */
   @Override
   public void send(String data) {}
 }
