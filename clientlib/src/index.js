@@ -1,156 +1,155 @@
-import * as io from 'socket.io-client';
+import * as io from 'socket.io-client'
 
 /**
  * Created by giko on 3/2/15.
  */
-let mouseX = 0;
-let mouseY = 0;
-const oldMouseMove = document.onmousemove;
+let mouseX = 0
+let mouseY = 0
+const oldMouseMove = document.onmousemove
 
-function readMouseMove(e) {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    if (oldMouseMove) {
-        oldMouseMove(e);
-    }
+function readMouseMove (e) {
+  mouseX = e.clientX
+  mouseY = e.clientY
+  if (oldMouseMove) {
+    oldMouseMove(e)
+  }
 }
 
-document.onmousemove = readMouseMove;
+document.onmousemove = readMouseMove
 
-let isActive = true;
+let isActive = true
 
 window.onfocus = function () {
-    isActive = true;
-};
-
-window.onblur = function () {
-    isActive = false;
-};
-
-const MutationObserver = (function () {
-    var prefixes = ['WebKit', 'Moz', 'O', 'Ms', ''];
-    for (var i = 0; i < prefixes.length; i++) {
-        if (prefixes[i] + 'MutationObserver' in window) {
-            return window[prefixes[i] + 'MutationObserver'];
-        }
-    }
-    return false;
-}());
-
-// Create an observer instance
-let observer;
-
-if (MutationObserver) {
-    observer = new MutationObserver(function (mutations) {
-        mutations.forEach(function (mutation) {
-            var newNodes = mutation.addedNodes; // DOM NodeList
-            for (var index = 0; index < newNodes.length; ++index) {
-                var newNode = newNodes[index];
-                if (newNode.nodeType === 1) {
-                    newNode.addEventListener("scroll", function (event) {
-                        var node = event.target;
-                        node.setAttribute("scrollTop", node.scrollTop);
-                        node.setAttribute("scrollLeft", node.scrollLeft);
-                    });
-                    newNode.addEventListener("change", function (event) {
-                        var node = event.target;
-                        node.setAttribute("value", node.value);
-                    });
-                    updateAttributes(newNode);
-                }
-            }
-        });
-    });
-    // Configuration of the observer:
-    const config = {
-        attributes: true,
-        childList: true,
-        characterData: true,
-        subtree: true
-    };
+  isActive = true
 }
 
+window.onblur = function () {
+  isActive = false
+}
 
-function updateAttributes(node) {
-    for (let index = 0; index < node.childNodes.length; ++index) {
-        if (node.childNodes[index].nodeType === 1) {
-            updateAttributes(node.childNodes[index]);
-        }
+const MutationObserver = (function () {
+  const prefixes = ['WebKit', 'Moz', 'O', 'Ms', '']
+  for (let i = 0; i < prefixes.length; i++) {
+    if (prefixes[i] + 'MutationObserver' in window) {
+      return window[prefixes[i] + 'MutationObserver']
     }
+  }
+  return false
+}())
 
-    node.setAttribute("scrollTop", node.scrollTop);
-    node.setAttribute("scrollLeft", node.scrollLeft);
-    node.setAttribute("absWidth", node.scrollWidth);
-    node.setAttribute("absHeight", node.scrollHeight);
-    node.setAttribute("value", node.value);
+// Create an observer instance
+let observer
+
+if (MutationObserver) {
+  observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      const newNodes = mutation.addedNodes // DOM NodeList
+      for (let index = 0; index < newNodes.length; ++index) {
+        const newNode = newNodes[index]
+        if (newNode.nodeType === 1) {
+          newNode.addEventListener('scroll', function (event) {
+            const node = event.target
+            node.setAttribute('scrollTop', node.scrollTop)
+            node.setAttribute('scrollLeft', node.scrollLeft)
+          })
+          newNode.addEventListener('change', function (event) {
+            const node = event.target
+            node.setAttribute('value', node.value)
+          })
+          updateAttributes(newNode)
+        }
+      }
+    })
+  })
+  // Configuration of the observer:
+  const config = {
+    attributes: true,
+    childList: true,
+    characterData: true,
+    subtree: true
+  }
+}
+
+function updateAttributes (node) {
+  for (let index = 0; index < node.childNodes.length; ++index) {
+    if (node.childNodes[index].nodeType === 1) {
+      updateAttributes(node.childNodes[index])
+    }
+  }
+
+  node.setAttribute('scrollTop', node.scrollTop)
+  node.setAttribute('scrollLeft', node.scrollLeft)
+  node.setAttribute('absWidth', node.scrollWidth)
+  node.setAttribute('absHeight', node.scrollHeight)
+  node.setAttribute('value', node.value)
 }
 
 window.onresize = function () {
-    updateAttributes(document.body);
-};
-
-let socket;
-
-const broadcaster = delta => {
-    if (!MutationObserver) {
-        updateAttributes(document.body);
-    }
-
-    socket.emit('screendata', document.documentElement.outerHTML);
-};
-const infoBroadcaster = () => {
-    socket.emit('userinfo', {
-        mouseX: mouseX,
-        mouseY: mouseY,
-        scrollX: window.scrollX,
-        scrollY: window.scrollY,
-        location: window.location.origin,
-        fullLocation: window.location.href,
-        isActive: isActive,
-    });
-};
-
-if (window.webRemotingHost) {
-    init(window.webRemotingHost);
+  updateAttributes(document.body)
 }
 
-export function init(host) {
-    let broadcasterInterval;
-    let infoBroadcasterInterval;
+let socket
 
-    socket = io(host);
+const broadcaster = delta => {
+  if (!MutationObserver) {
+    updateAttributes(document.body)
+  }
 
-    socket.on('message', function (data) {
-        // swal({title: data.title, text: data.message, type: data.type});
-        alert(data.message);
-    });
+  socket.emit('screendata', document.documentElement.outerHTML)
+}
+const infoBroadcaster = () => {
+  socket.emit('userinfo', {
+    mouseX,
+    mouseY,
+    scrollX: window.scrollX,
+    scrollY: window.scrollY,
+    location: window.location.origin,
+    fullLocation: window.location.href,
+    isActive
+  })
+}
 
-    socket.on('connect', function () {
-        socket.emit('client');
-        infoBroadcasterInterval = setInterval(infoBroadcaster, 400);
-    });
+if (window.webRemotingHost) {
+  init(window.webRemotingHost)
+}
 
-    socket.on('disconnect', function () {
-        clearInterval(broadcasterInterval);
-        clearInterval(infoBroadcasterInterval);
-    });
+export function init (host) {
+  let broadcasterInterval
+  let infoBroadcasterInterval
 
-    socket.on('reload', function () {
-        location.reload();
-    });
+  socket = io(host)
 
-    socket.on('pingDom', function (time) {
-        updateAttributes(document.body);
-        socket.emit('pongDom', {html: document.documentElement.outerHTML, time: time});
-    });
+  socket.on('message', function (data) {
+    // swal({title: data.title, text: data.message, type: data.type});
+    alert(data.message)
+  })
 
-    socket.on('startbroadcast', function () {
-        updateAttributes(document.body);
+  socket.on('connect', function () {
+    socket.emit('client')
+    infoBroadcasterInterval = setInterval(infoBroadcaster, 400)
+  })
 
-        broadcasterInterval = setInterval(broadcaster, 1000);
-    });
+  socket.on('disconnect', function () {
+    clearInterval(broadcasterInterval)
+    clearInterval(infoBroadcasterInterval)
+  })
 
-    socket.on('stopbroadcast', function () {
-        clearInterval(broadcasterInterval);
-    });
+  socket.on('reload', function () {
+    location.reload()
+  })
+
+  socket.on('pingDom', function (time) {
+    updateAttributes(document.body)
+    socket.emit('pongDom', { html: document.documentElement.outerHTML, time })
+  })
+
+  socket.on('startbroadcast', function () {
+    updateAttributes(document.body)
+
+    broadcasterInterval = setInterval(broadcaster, 1000)
+  })
+
+  socket.on('stopbroadcast', function () {
+    clearInterval(broadcasterInterval)
+  })
 }

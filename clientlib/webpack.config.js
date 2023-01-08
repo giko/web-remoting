@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('path')
 
 module.exports = {
   entry: './src/index.js',
@@ -7,6 +7,6 @@ module.exports = {
     filename: 'index.js',
     globalObject: 'this',
     libraryTarget: 'umd',
-    library: 'webRemotingClient',
-  },
-};
+    library: 'webRemotingClient'
+  }
+}
