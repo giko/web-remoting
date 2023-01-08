@@ -14,7 +14,3 @@ enabled = true
 [[transformers]]
 name = "standardjs"
 enabled = true
-
-[[transformers]]
-name = "google-java-format"
-enabled = true
