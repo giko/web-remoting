@@ -28,7 +28,7 @@ public abstract class AbstractSharingSession<T> implements SharingSession<T> {
     protected abstract T transform(T data);
 
     @Override
-    public RemotingClient<? extends T> getClient() {
+    public RemotingClient<T> getClient() {
         return client;
     }
 

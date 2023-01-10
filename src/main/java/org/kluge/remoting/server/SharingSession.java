@@ -8,7 +8,7 @@ import java.util.Set;
 public interface SharingSession<T> {
     void broadcast(T data);
 
-    RemotingClient<? extends T> getClient();
+    RemotingClient<T> getClient();
 
     void addSupervisor(RemotingSupervisor<T> supervisor);
 
