@@ -12,7 +12,7 @@ public abstract class AbstractSharingSession<T> implements SharingSession<T> {
 
     protected T previousState;
 
-    public AbstractSharingSession(RemotingClient<T> client) {
+    protected AbstractSharingSession(RemotingClient<T> client) {
         this.client = client;
     }
 
