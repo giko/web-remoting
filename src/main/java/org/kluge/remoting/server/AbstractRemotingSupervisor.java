@@ -9,10 +9,10 @@ import java.util.Set;
  */
 public abstract class AbstractRemotingSupervisor<T> implements RemotingSupervisor<T> {
     private final Set<BatchableRemotingClient> clients = new HashSet<>();
-    private final Boolean isSilent;
+    private final boolean isSilent;
     private Optional<RemotingClient<T>> activeClient = Optional.empty();
 
-    public AbstractRemotingSupervisor(Boolean isSilent) {
+    protected AbstractRemotingSupervisor(boolean isSilent) {
         this.isSilent = isSilent;
     }
 
@@ -52,6 +52,7 @@ public abstract class AbstractRemotingSupervisor<T> implements RemotingSuperviso
         return activeClient;
     }
 
+    @Override
     public void unSupervise() {
         getClient()
                 .ifPresent(

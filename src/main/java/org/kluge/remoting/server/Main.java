@@ -29,8 +29,8 @@ public class Main {
         Configuration config = new Configuration();
         config.setHostname(ObjectUtils.defaultIfNull(result.getValue(hostNameOption), "0.0.0.0"));
         config.setPort(ObjectUtils.defaultIfNull(result.getValue(websocketPortOption), 8082));
-        //        config.setMaxHttpContentLength(Integer.MAX_VALUE);
-        //        config.setMaxFramePayloadLength(Integer.MAX_VALUE);
+        config.setMaxHttpContentLength(Integer.MAX_VALUE);
+        config.setMaxFramePayloadLength(Integer.MAX_VALUE);
         config.getSocketConfig().setReuseAddress(true);
 
         Server httpServer =
