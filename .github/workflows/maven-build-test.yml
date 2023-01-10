@@ -2,7 +2,7 @@ name: Maven run tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ 'releases/**', 'feature/**', 'master' ]
   pull_request:
     types: [ opened, reopened ]
 
