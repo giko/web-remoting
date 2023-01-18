@@ -113,11 +113,6 @@
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
                         </path>
-                        <path>
-                            <groupId>com.datastax.oss.quarkus</groupId>
-                            <artifactId>cassandra-quarkus-mapper-processor</artifactId>
-                            <version>${cassandra-datastax.version}</version>
-                        </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
                         <arg>-parameters</arg>
