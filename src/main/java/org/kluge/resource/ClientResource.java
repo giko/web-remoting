@@ -26,10 +26,7 @@ import java.util.UUID;
 @Consumes(MediaType.APPLICATION_JSON)
 public class ClientResource {
     protected Vertx vertx;
-
     protected ObjectMapper objectMapper;
-
-
     protected Emitter<SessionInfo> sessionInfoEmitter;
 
     public ClientResource(
