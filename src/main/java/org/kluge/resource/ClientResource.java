@@ -1,12 +1,14 @@
 package org.kluge.resource;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.kluge.dto.ClientConfigResponse;
-import org.kluge.dto.SessionInfo;
+import org.kluge.dto.SessionData;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.*;
@@ -25,23 +27,43 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ClientResource {
-    protected Vertx vertx;
-    protected ObjectMapper objectMapper;
-    protected Emitter<SessionInfo> sessionInfoEmitter;
+    protected final Vertx vertx;
+    protected final ObjectMapper objectMapper;
+    protected final Emitter<SessionData> sessionDataEmitter;
+    protected final Emitter<Event> sessionEventsEmitter;
 
     public ClientResource(
             Vertx vertx,
             ObjectMapper objectMapper,
-            @Channel("session-info") Emitter<SessionInfo> sessionInfoEmitter
+            @Channel("session-data") Emitter<SessionData> sessionDataEmitter,
+            @Channel("session-events") Emitter<Event> sessionEventsEmitter
     ) {
         this.vertx = vertx;
         this.objectMapper = objectMapper;
-        this.sessionInfoEmitter = sessionInfoEmitter;
+        this.sessionDataEmitter = sessionDataEmitter;
+        this.sessionEventsEmitter = sessionEventsEmitter;
     }
 
     @POST
-    public Uni<Void> publishUserInfo(SessionInfo sessionInfo) {
-        return Uni.createFrom().completionStage(sessionInfoEmitter.send(sessionInfo));
+    public Uni<Void> publishSession(
+            @HeaderParam("X-session-id") UUID sessionId,
+            SessionData sessionData
+    ) {
+        return Uni.createFrom().completionStage(sessionDataEmitter.send(sessionData));
+    }
+
+    @POST
+    @Path("/events/{eventName}")
+    public Uni<Void> publishEvent(
+            @HeaderParam("X-session-id") UUID sessionId,
+            @PathParam("eventName") String eventName,
+            JsonObject eventData
+    ) {
+        var event = new Event(sessionId, eventName, eventData);
+        return Uni.createFrom().completionStage(sessionEventsEmitter.send(event));
+    }
+
+    public record Event(UUID sessionId, String eventName, JsonObject eventData) {
     }
 
     @GET
@@ -50,11 +72,11 @@ public class ClientResource {
             @CookieParam("clientId") Cookie clientIdCookie
     ) {
         var clientId = (clientIdCookie != null && clientIdCookie.getValue() != null) ?
-                clientIdCookie.getValue() :
-                UUID.randomUUID().toString();
+                UUID.fromString(clientIdCookie.getValue()) :
+                UUID.randomUUID();
 
         return Response
-                .ok(new ClientConfigResponse(UUID.randomUUID().toString(), 500))
+                .ok(new ClientConfigResponse(UUID.randomUUID().toString(), clientId, 500))
                 .header("Set-Cookie", "clientId=" + clientId)
                 .build();
     }

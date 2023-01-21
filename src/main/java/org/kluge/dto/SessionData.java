@@ -6,29 +6,33 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Data
 @Setter(AccessLevel.PRIVATE)
-public class SessionInfo {
-    private final String id;
-    private String userId;
+public class SessionData {
+    private UUID id;
+    private UUID userId;
     private final String location;
     private final int x;
     private final int y;
 
     @JsonCreator
-    public SessionInfo(
-            @JsonProperty("id") String id,
+    public SessionData(
             @JsonProperty("location") String location,
             @JsonProperty("x") int x,
             @JsonProperty("y") int y
     ) {
-        this.id = id;
         this.location = location;
         this.x = x;
         this.y = y;
     }
 
-    public void setUserId(String userId) {
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 

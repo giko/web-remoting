@@ -3,8 +3,8 @@ package org.kluge.resource;
 import io.smallrye.mutiny.Multi;
 import org.jboss.resteasy.reactive.RestStreamElementType;
 import org.kluge.dto.DomainInfo;
-import org.kluge.dto.SessionInfo;
-import org.kluge.repository.SessionInfoRepository;
+import org.kluge.dto.SessionData;
+import org.kluge.repository.SessionsRepository;
 import org.kluge.utils.KafkaMutinyConsumerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,28 +16,28 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class SessionResource {
-    protected final SessionInfoRepository sessionInfoRepository;
+    protected final SessionsRepository sessionsRepository;
     protected final KafkaMutinyConsumerFactory kafkaMutinyConsumerFactory;
 
-    public SessionResource(SessionInfoRepository sessionInfoRepository,
+    public SessionResource(SessionsRepository sessionsRepository,
                            KafkaMutinyConsumerFactory kafkaMutinyConsumerFactory) {
-        this.sessionInfoRepository = sessionInfoRepository;
+        this.sessionsRepository = sessionsRepository;
         this.kafkaMutinyConsumerFactory = kafkaMutinyConsumerFactory;
     }
 
     @GET
     @Path("/domains")
     public Multi<DomainInfo> getDomainsInfo() {
-        return sessionInfoRepository.getDomainsInfo();
+        return sessionsRepository.getDomainsInfo();
     }
 
     @GET
     @RestStreamElementType(MediaType.APPLICATION_JSON)
     @Path("/listen/{sessionId}")
-    public Multi<SessionInfo> streamUserInfo(@PathParam("sessionId") String sessionId) {
+    public Multi<SessionData> streamUserInfo(@PathParam("sessionId") String sessionId) {
         String topicPrefix = "session-";
 
-        return kafkaMutinyConsumerFactory.getMultiConsumer(topicPrefix + sessionId, SessionInfo.class);
+        return kafkaMutinyConsumerFactory.getMultiConsumer(topicPrefix + sessionId, SessionData.class);
     }
 
 }

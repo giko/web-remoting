@@ -1,4 +1,6 @@
 package org.kluge.dto;
 
-public record ClientConfigResponse(String id, int infoPushInterval) {
+import java.util.UUID;
+
+public record ClientConfigResponse(String id, UUID userId, int infoPushInterval) {
 }

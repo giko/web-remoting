@@ -2,11 +2,12 @@ package org.kluge.stream;
 
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.kluge.dto.SessionInfo;
-import org.kluge.repository.SessionInfoRepository;
+import org.kluge.dto.SessionData;
+import org.kluge.repository.EventsRepository;
+import org.kluge.repository.SessionsRepository;
+import org.kluge.resource.ClientResource;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 /**
  * Created on 16/01/22
@@ -16,14 +17,24 @@ import javax.inject.Inject;
  */
 @ApplicationScoped
 public class ClientStreamProcessor {
-    protected SessionInfoRepository sessionInfoRepository;
+    protected final SessionsRepository sessionsRepository;
+    protected final EventsRepository eventsRepository;
 
-    public ClientStreamProcessor(SessionInfoRepository sessionInfoRepository) {
-        this.sessionInfoRepository = sessionInfoRepository;
+    public ClientStreamProcessor(
+            SessionsRepository sessionsRepository,
+            EventsRepository eventsRepository
+    ) {
+        this.sessionsRepository = sessionsRepository;
+        this.eventsRepository = eventsRepository;
     }
 
-    @Incoming("session-info")
-    public Uni<Void> processSessionInfo(SessionInfo sessionInfo) {
-        return sessionInfoRepository.save(sessionInfo);
+    @Incoming("session-data")
+    public Uni<Void> processSessionData(SessionData sessionData) {
+        return sessionsRepository.save(sessionData);
+    }
+
+    @Incoming("session-events")
+    public Uni<Void> processEvents(ClientResource.Event event) {
+        return eventsRepository.save(event);
     }
 }
