@@ -1,15 +1,11 @@
 package org.kluge.repository;
 
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Tuple;
-import org.kluge.dto.DomainInfo;
-import org.kluge.dto.SessionData;
-import org.kluge.resource.ClientResource;
+import org.kluge.dto.SessionEvent;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.time.OffsetDateTime;
 
 /**
  * This class provides a way to work with sessions persistence layer.
@@ -22,7 +18,7 @@ public class EventsRepository {
         this.pgClient = pgClient;
     }
 
-    public Uni<Void> save(ClientResource.Event event) {
+    public Uni<Void> save(SessionEvent event) {
         return pgClient.preparedQuery("""
                         insert into events (event_name)
                         values ($1)

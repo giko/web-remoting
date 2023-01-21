@@ -3,9 +3,9 @@ package org.kluge.stream;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.kluge.dto.SessionData;
+import org.kluge.dto.SessionEvent;
 import org.kluge.repository.EventsRepository;
 import org.kluge.repository.SessionsRepository;
-import org.kluge.resource.ClientResource;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -34,7 +34,7 @@ public class ClientStreamProcessor {
     }
 
     @Incoming("session-events")
-    public Uni<Void> processEvents(ClientResource.Event event) {
+    public Uni<Void> processEvents(SessionEvent event) {
         return eventsRepository.save(event);
     }
 }

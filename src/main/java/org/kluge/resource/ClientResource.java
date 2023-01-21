@@ -1,6 +1,5 @@
 package org.kluge.resource;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.Vertx;
@@ -9,6 +8,7 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.kluge.dto.ClientConfigResponse;
 import org.kluge.dto.SessionData;
+import org.kluge.dto.SessionEvent;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.*;
@@ -30,13 +30,13 @@ public class ClientResource {
     protected final Vertx vertx;
     protected final ObjectMapper objectMapper;
     protected final Emitter<SessionData> sessionDataEmitter;
-    protected final Emitter<Event> sessionEventsEmitter;
+    protected final Emitter<SessionEvent> sessionEventsEmitter;
 
     public ClientResource(
             Vertx vertx,
             ObjectMapper objectMapper,
             @Channel("session-data") Emitter<SessionData> sessionDataEmitter,
-            @Channel("session-events") Emitter<Event> sessionEventsEmitter
+            @Channel("session-events") Emitter<SessionEvent> sessionEventsEmitter
     ) {
         this.vertx = vertx;
         this.objectMapper = objectMapper;
@@ -59,11 +59,8 @@ public class ClientResource {
             @PathParam("eventName") String eventName,
             JsonObject eventData
     ) {
-        var event = new Event(sessionId, eventName, eventData);
+        var event = new SessionEvent(sessionId, eventName, eventData);
         return Uni.createFrom().completionStage(sessionEventsEmitter.send(event));
-    }
-
-    public record Event(UUID sessionId, String eventName, JsonObject eventData) {
     }
 
     @GET
