@@ -9,12 +9,14 @@ import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.kluge.dto.ClientConfigResponse;
 import org.kluge.dto.SessionData;
 import org.kluge.dto.SessionEvent;
+import org.kluge.repository.UsersRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Duration;
 import java.util.UUID;
 
 /**
@@ -32,23 +34,27 @@ public class ClientResource {
     protected final Emitter<SessionData> sessionDataEmitter;
     protected final Emitter<SessionEvent> sessionEventsEmitter;
 
+    protected final UsersRepository usersRepository;
+
     public ClientResource(
             Vertx vertx,
             ObjectMapper objectMapper,
             @Channel("session-data") Emitter<SessionData> sessionDataEmitter,
-            @Channel("session-events") Emitter<SessionEvent> sessionEventsEmitter
-    ) {
+            @Channel("session-events") Emitter<SessionEvent> sessionEventsEmitter,
+            UsersRepository usersRepository) {
         this.vertx = vertx;
         this.objectMapper = objectMapper;
         this.sessionDataEmitter = sessionDataEmitter;
         this.sessionEventsEmitter = sessionEventsEmitter;
+        this.usersRepository = usersRepository;
     }
 
     @POST
-    public Uni<Void> publishSession(
+    public Uni<Void> publishSessionData(
             @HeaderParam("X-session-id") UUID sessionId,
             SessionData sessionData
     ) {
+        sessionData.setId(sessionId);
         return Uni.createFrom().completionStage(sessionDataEmitter.send(sessionData));
     }
 
@@ -68,12 +74,12 @@ public class ClientResource {
     public Response getConfig(
             @CookieParam("clientId") Cookie clientIdCookie
     ) {
-        var clientId = (clientIdCookie != null && clientIdCookie.getValue() != null) ?
+        UUID clientId = (clientIdCookie != null && clientIdCookie.getValue() != null) ?
                 UUID.fromString(clientIdCookie.getValue()) :
-                UUID.randomUUID();
+                usersRepository.createNew().await().atMost(Duration.ofSeconds(1));
 
         return Response
-                .ok(new ClientConfigResponse(UUID.randomUUID().toString(), clientId, 500))
+                .ok(new ClientConfigResponse(clientId, 500))
                 .header("Set-Cookie", "clientId=" + clientId)
                 .build();
     }
